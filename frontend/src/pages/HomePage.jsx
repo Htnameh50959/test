@@ -1,174 +1,280 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Box, Container, Typography, TextField, Button, Grid, Card, CardMedia,
-  CardContent, CardActionArea, Chip, Skeleton, InputAdornment, MenuItem,
-  Select, FormControl, InputLabel, Slider, Divider, Alert, Paper, InputBase,
-  useMediaQuery, useTheme
+  Box, Container, Typography, Button, Grid, Chip, InputBase,
+  Paper, useMediaQuery, useTheme, Skeleton, alpha
 } from '@mui/material';
-import { Search as SearchIcon, LocationOn, Star, AccessTime, DeliveryDining } from '@mui/icons-material';
+import {
+  Search as SearchIcon, LocalDining, DeliveryDining, EventNote
+} from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { searchRestaurants, selectSearchResults, selectRestaurantsLoading, selectRestaurantsError } from '@/redux/slices/restaurantsSlice';
+import {
+  searchRestaurants,
+  selectSearchResults,
+  selectRestaurantsLoading,
+} from '@/redux/slices/restaurantsSlice';
 import { useGeolocation } from '@/hooks/useGeolocation';
-import { CUISINE_TYPES, DEFAULT_LOCATION } from '@/constants';
+import { CUISINE_TYPES } from '@/constants';
 import { RestaurantCard, RestaurantSkeleton } from '@/components/restaurants/RestaurantCard';
 
-export default function HomePage() {
-  const dispatch  = useDispatch();
-  const navigate  = useNavigate();
-  const theme     = useTheme();
-  const isTablet  = useMediaQuery(theme.breakpoints.down('md'));
+const CUISINE_ICONS = {
+  Indian: '🍛', 'North Indian': '🫓', 'South Indian': '🥘', Chinese: '🥢',
+  Italian: '🍝', Mexican: '🌮', Thai: '🍜', Japanese: '🍣',
+  American: '🍔', Mediterranean: '🫒', Biryani: '🍚', Pizza: '🍕',
+  Burger: '🍔', Desserts: '🍰', Beverages: '🥤',
+};
 
-  const results   = useSelector(selectSearchResults);
-  const loading   = useSelector(selectRestaurantsLoading);
-  const error     = useSelector(selectRestaurantsError);
+const FEATURES = [
+  { icon: <LocalDining sx={{ fontSize: 36, color: 'primary.main' }} />, title: 'Dine In', desc: 'Reserve a table at top restaurants' },
+  { icon: <DeliveryDining sx={{ fontSize: 36, color: 'primary.main' }} />, title: 'Fast Delivery', desc: 'Hot food at your door in 30 min' },
+  { icon: <EventNote sx={{ fontSize: 36, color: 'primary.main' }} />, title: 'Live Events', desc: 'Discover food festivals & pop-ups' },
+];
+
+export default function HomePage() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const results = useSelector(selectSearchResults);
+  const loading = useSelector(selectRestaurantsLoading);
   const { location, loading: geoLoading } = useGeolocation({ autoRequest: true });
-  
-  const [query, setSearchQuery] = useState('');
+  const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    if (geoLoading) return;
+    const params = { radius: 2500000, limit: 6, sort: 'rating' };
+    if (location?.lat && location?.lng) {
+      params.lat = location.lat;
+      params.lng = location.lng;
+    }
+    dispatch(searchRestaurants(params));
+  }, [dispatch, geoLoading, location?.lat, location?.lng]);
 
   const displayResults = results.slice(0, 6);
 
-  useEffect(() => { 
-    // Trigger search when location is resolved or when component mounts
-    // Include large radius for initial discoverability
-    const searchParams = { 
-      radius: 2500000,
-      ...(location?.lat && location?.lng && { lat: location.lat, lng: location.lng })
-    };
-    
-    dispatch(searchRestaurants(searchParams));
-  }, [dispatch, location?.lat, location?.lng]);
-
   return (
     <Box>
-      {/* ── HERO SECTION ──────────────────────────────────────────────────────── */}
-      <Box 
-        sx={{ 
+      {/* ── HERO ──────────────────────────────────────────────────────── */}
+      <Box
+        sx={{
           position: 'relative',
-          background: 'linear-gradient(135deg, #1D3557 0%, #D85830 100%)', 
-          py: { xs: 10, md: 16 }, 
+          background: 'linear-gradient(140deg, #1D3557 0%, #2C4A7C 50%, #D85830 100%)',
+          py: { xs: 12, md: 18 },
           px: 2,
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}
       >
-        {/* Decorative Kinetic Shapes */}
-        <Box sx={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)' }} />
-        <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,57,70,0.05) 0%, transparent 70%)' }} />
+        <Box sx={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 80% 20%, rgba(216,88,48,0.18) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(255,255,255,0.06) 0%, transparent 50%)' }} />
 
-        <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography 
-            variant="h1" 
-            sx={{ 
-              textAlign: 'center', 
-              color: 'white', 
-              mb: 2, 
-              fontSize: { xs: '2.5rem', md: '4rem' },
-              fontWeight: 900,
-              letterSpacing: '-0.04em',
-              textShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <Chip
+            label="🔥 1,200+ restaurants available"
+            sx={{ mb: 3, bgcolor: 'rgba(255,255,255,0.12)', color: 'white', fontWeight: 700, backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
+          />
+          <Typography
+            variant="h1"
+            sx={{
+              color: 'white', fontWeight: 900, letterSpacing: '-0.03em',
+              fontSize: { xs: '2.4rem', sm: '3.5rem', md: '4.5rem' },
+              lineHeight: 1.08, mb: 2,
             }}
           >
-            Kinetic Flavours, <Box component="span" sx={{ fontStyle: 'italic', fontWeight: 500, opacity: 0.9 }}>Curated</Box> for You
+            Food You Love,{' '}
+            <Box component="span" sx={{ fontStyle: 'italic', fontWeight: 400, opacity: 0.85 }}>
+              Delivered
+            </Box>
           </Typography>
-          
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              color: 'rgba(255,255,255,0.85)', 
-              textAlign: 'center', 
-              mb: 6, 
-              maxWidth: 600,
-              fontWeight: 500,
-              lineHeight: 1.4
-            }}
-          >
-            Discover the most exclusive dining experiences and instant delivery from the city's top-rated hidden gems.
+          <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.75)', mb: 6, fontWeight: 400, maxWidth: 520, mx: 'auto', lineHeight: 1.5 }}>
+            Discover the best restaurants, reserve tables, and track your order in real time.
           </Typography>
 
           <Paper
             component="form"
-            onSubmit={(e) => {
-               e.preventDefault();
-               navigate(`/search?q=${query}`);
-            }}
+            onSubmit={(e) => { e.preventDefault(); navigate(`/search?q=${query}`); }}
             elevation={0}
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              width: '100%',
-              maxWidth: 700,
-              bgcolor: 'white',
-              borderRadius: 10,
-              p: 1.2,
-              boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-              border: '1px solid rgba(255,255,255,0.1)'
+              display: 'flex', alignItems: 'center', maxWidth: 680, mx: 'auto',
+              bgcolor: 'white', borderRadius: 10, p: '6px 6px 6px 20px',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.22)',
             }}
           >
-            <Box sx={{ px: 2, display: 'flex', alignItems: 'center', flex: 1 }}>
-               <SearchIcon sx={{ color: 'primary.main', mr: 2 }} />
-               <InputBase
-                 placeholder="Search by restaurant, dish or cuisine..."
-                 sx={{ flex: 1, fontSize: '1.1rem', fontWeight: 600 }}
-                 value={query}
-                 onChange={(e) => setSearchQuery(e.target.value)}
-               />
-            </Box>
-            <Button 
-               type="submit" 
-               variant="contained" 
-               size="large"
-               sx={{ 
-                 borderRadius: 8, 
-                 px: 6, 
-                 py: 2, 
-                 fontWeight: 900, 
-                 fontSize: '1rem',
-                 boxShadow: 'none'
-               }}
+            <SearchIcon sx={{ color: 'text.secondary', mr: 1.5, flexShrink: 0 }} />
+            <InputBase
+              placeholder="Search restaurants, dishes, cuisines..."
+              sx={{ flex: 1, fontSize: '1.05rem', fontWeight: 600 }}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              sx={{ borderRadius: 8, px: { xs: 3, md: 5 }, py: 1.6, fontWeight: 900, flexShrink: 0, boxShadow: 'none', fontSize: '0.95rem' }}
             >
-               EXPLORE
+              {isMobile ? '→' : 'EXPLORE'}
             </Button>
           </Paper>
+
+          {/* Quick cuisine links */}
+          <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap', mt: 4 }}>
+            {CUISINE_TYPES.slice(0, 6).map((c) => (
+              <Chip
+                key={c}
+                label={`${CUISINE_ICONS[c] || '🍽'} ${c}`}
+                onClick={() => navigate(`/search?q=${c}`)}
+                sx={{
+                  bgcolor: 'rgba(255,255,255,0.12)', color: 'white', fontWeight: 700,
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  backdropFilter: 'blur(8px)',
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.22)' },
+                  cursor: 'pointer',
+                }}
+              />
+            ))}
+          </Box>
         </Container>
       </Box>
 
-      {/* ── DISCOVERY SECTION ─────────────────────────────────────────────────── */}
-      <Container maxWidth="lg" sx={{ py: 12 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 8 }}>
-          <Box>
-            <Typography variant="caption" fontWeight={900} color="primary" sx={{ letterSpacing: 2, mb: 1, display: 'block' }}>LOCAL FAVOURITES</Typography>
-            <Typography variant="h3" fontWeight={900} sx={{ letterSpacing: -1 }}>Popular <Box component="span" sx={{ color: 'text.secondary', fontWeight: 500 }}>Nearby</Box></Typography>
+      {/* ── FEATURES ──────────────────────────────────────────────────── */}
+      <Box sx={{ bgcolor: '#FAFAFA', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Container maxWidth="lg">
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3,1fr)' }, divide: 'x' }}>
+            {FEATURES.map((f, i) => (
+              <Box key={i} sx={{ py: 4, px: 5, display: 'flex', alignItems: 'center', gap: 2.5, borderRight: i < 2 ? { sm: '1px solid' } : 'none', borderColor: 'divider' }}>
+                {f.icon}
+                <Box>
+                  <Typography fontWeight={800} variant="body1">{f.title}</Typography>
+                  <Typography variant="body2" color="text.secondary">{f.desc}</Typography>
+                </Box>
+              </Box>
+            ))}
           </Box>
-          <Button 
-            variant="text" 
-            onClick={() => navigate('/search')} 
-            sx={{ fontWeight: 900, px: 3, borderRadius: 2, color: 'text.primary' }}
+        </Container>
+      </Box>
+
+      {/* ── NEARBY / POPULAR SECTION ──────────────────────────────────── */}
+      <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 5 }}>
+          <Box>
+            <Typography variant="overline" fontWeight={900} color="primary" sx={{ letterSpacing: 3, display: 'block', mb: 0.5 }}>
+              {location?.lat ? 'NEARBY' : 'POPULAR'}
+            </Typography>
+            <Typography variant="h4" fontWeight={900} sx={{ letterSpacing: -0.5 }}>
+              {location?.lat ? 'Restaurants Near You' : 'Top-Rated Restaurants'}
+            </Typography>
+          </Box>
+          <Button
+            variant="outlined"
+            onClick={() => navigate('/search')}
+            sx={{ fontWeight: 800, borderRadius: 3, px: 3, display: { xs: 'none', sm: 'flex' } }}
           >
-            VIEW ALL CATALOGUES →
+            View All →
           </Button>
         </Box>
 
-        <Grid container spacing={5}>
+        <Grid container spacing={3}>
           {loading
-            ? Array.from({ length: 3 }).map((_, i) => <Grid xs={12} sm={6} lg={4} key={i}><RestaurantSkeleton /></Grid>)
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={i}>
+                  <RestaurantSkeleton />
+                </Grid>
+              ))
             : displayResults.map((r) => (
-                <Grid xs={12} sm={6} lg={4} key={r._id}>
-                   <RestaurantCard restaurant={r} />
+                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={r._id}>
+                  <RestaurantCard restaurant={r} />
                 </Grid>
               ))
           }
         </Grid>
 
-        {results.length === 0 && !loading && (
-           <Box sx={{ textAlign: 'center', py: 10, bgcolor: 'rgba(0,0,0,0.02)', borderRadius: 8, mt: 4 }}>
-              <Typography variant="h2">📍</Typography>
-              <Typography variant="h5" fontWeight={900} mt={2}>We're expanding!</Typography>
-              <Typography color="text.secondary" fontWeight={500}>No active restaurants found in your database.</Typography>
-              <Button onClick={() => navigate('/search')} sx={{ mt: 2, fontWeight: 900 }}>Browse Global Selection</Button>
-           </Box>
+        {!loading && displayResults.length === 0 && (
+          <Box sx={{
+            textAlign: 'center', py: 10, mt: 4,
+            bgcolor: alpha(theme.palette.primary.main, 0.04),
+            borderRadius: 4, border: '1px dashed', borderColor: alpha(theme.palette.primary.main, 0.2)
+          }}>
+            <Typography variant="h2" sx={{ mb: 1 }}>📍</Typography>
+            <Typography variant="h5" fontWeight={900}>No restaurants found</Typography>
+            <Typography color="text.secondary" sx={{ mt: 1 }}>
+              Make sure your database has active restaurants with <strong>isActive: true</strong>.
+            </Typography>
+            <Button variant="contained" onClick={() => navigate('/search')} sx={{ mt: 3, fontWeight: 900, borderRadius: 3 }}>
+              Browse All
+            </Button>
+          </Box>
         )}
+
+        <Box sx={{ textAlign: 'center', mt: 6, display: { sm: 'none' } }}>
+          <Button variant="outlined" onClick={() => navigate('/search')} sx={{ fontWeight: 800, borderRadius: 3, px: 5 }}>
+            View All Restaurants →
+          </Button>
+        </Box>
       </Container>
+
+      {/* ── CUISINE CATEGORIES ──────────────────────────────────────────── */}
+      <Box sx={{ bgcolor: '#F7F7F7', py: { xs: 6, md: 10 }, borderTop: '1px solid', borderColor: 'divider' }}>
+        <Container maxWidth="lg">
+          <Typography variant="overline" fontWeight={900} color="primary" sx={{ letterSpacing: 3, display: 'block', mb: 0.5, textAlign: 'center' }}>
+            BROWSE BY CUISINE
+          </Typography>
+          <Typography variant="h4" fontWeight={900} sx={{ textAlign: 'center', mb: 5, letterSpacing: -0.5 }}>
+            What are you craving?
+          </Typography>
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: 'repeat(3,1fr)', sm: 'repeat(5,1fr)', md: 'repeat(8,1fr)' },
+            gap: 2,
+          }}>
+            {CUISINE_TYPES.map((c) => (
+              <Box
+                key={c}
+                onClick={() => navigate(`/search?q=${c}`)}
+                sx={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  gap: 1, p: 2, borderRadius: 3, cursor: 'pointer',
+                  bgcolor: 'white', border: '1px solid', borderColor: 'divider',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    transform: 'translateY(-4px)',
+                    boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.12)}`,
+                  },
+                }}
+              >
+                <Typography sx={{ fontSize: '1.8rem', lineHeight: 1 }}>{CUISINE_ICONS[c] || '🍽'}</Typography>
+                <Typography variant="caption" fontWeight={800} textAlign="center" sx={{ lineHeight: 1.2 }}>{c}</Typography>
+              </Box>
+            ))}
+          </Box>
+        </Container>
+      </Box>
+
+      {/* ── CTA BANNER ──────────────────────────────────────────────────── */}
+      <Box sx={{ background: 'linear-gradient(135deg, #D85830 0%, #E86B40 100%)', py: { xs: 8, md: 12 } }}>
+        <Container maxWidth="md" sx={{ textAlign: 'center' }}>
+          <Typography variant="h3" fontWeight={900} color="white" sx={{ mb: 2, letterSpacing: -0.5 }}>
+            Ready to eat?
+          </Typography>
+          <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.85)', mb: 4, fontWeight: 400 }}>
+            Browse hundreds of restaurants and get your order delivered in minutes.
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => navigate('/search')}
+            sx={{
+              bgcolor: 'white', color: 'primary.main', fontWeight: 900, px: 6, py: 2,
+              borderRadius: 8, fontSize: '1rem',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+              '&:hover': { bgcolor: '#f5f5f5' },
+            }}
+          >
+            Find Restaurants Now
+          </Button>
+        </Container>
+      </Box>
     </Box>
   );
 }

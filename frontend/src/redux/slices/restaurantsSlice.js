@@ -28,6 +28,18 @@ export const searchRestaurants = createAsyncThunk(
   }
 );
 
+export const fetchAllRestaurants = createAsyncThunk(
+  'restaurants/fetchAll',
+  async (params, { rejectWithValue }) => {
+    try {
+      const { data } = await restaurantsService.getAll(params);
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to load restaurants');
+    }
+  }
+);
+
 export const fetchRestaurantById = createAsyncThunk(
   'restaurants/fetchById',
   async (id, { rejectWithValue }) => {
@@ -125,19 +137,28 @@ const restaurantsSlice = createSlice({
       .addCase(searchRestaurants.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(searchRestaurants.fulfilled, (state, { payload }) => {
         state.loading = false;
-        // Normalize response: backend might return { data: [ restaurants ] } or { data: [ { results: [], ... } ] }
-        const results = Array.isArray(payload.data) 
-          ? payload.data 
+        const results = Array.isArray(payload.data)
+          ? payload.data
           : (payload.data?.[0]?.results ?? []);
-        
         state.searchResults = results;
         state.searchPagination = {
           total: payload.pagination?.total ?? results.length,
           pages: payload.pagination?.pages ?? 1,
         };
-        console.log(`[Redux] Search fulfilled: ${results.length} restaurants found.`);
       })
       .addCase(searchRestaurants.rejected, (state, { payload }) => { state.loading = false; state.error = payload; })
+
+      .addCase(fetchAllRestaurants.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchAllRestaurants.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        const results = Array.isArray(payload.data) ? payload.data : [];
+        state.searchResults = results;
+        state.searchPagination = {
+          total: payload.pagination?.total ?? results.length,
+          pages: payload.pagination?.pages ?? 1,
+        };
+      })
+      .addCase(fetchAllRestaurants.rejected, (state, { payload }) => { state.loading = false; state.error = payload; })
 
       // fetchRestaurantById
       .addCase(fetchRestaurantById.pending,  (state) => { state.detailLoading = true; state.error = null; })

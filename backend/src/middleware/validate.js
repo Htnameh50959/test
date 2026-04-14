@@ -213,24 +213,22 @@ const schemas = {
   restaurants: {
     // Validates GET /api/v1/restaurants/search query string.
     search: Joi.object({
-      // ── Required: user's current location ──
+      // ── Optional: user's current location (enables geo-ranked results) ──
       lat: Joi.number()
         .min(-90).max(90)
-        .required()
+        .optional()
         .messages({
           'number.base': 'lat must be a number',
           'number.min':  'lat must be between -90 and 90',
           'number.max':  'lat must be between -90 and 90',
-          'any.required':'lat (latitude) is required',
         }),
       lng: Joi.number()
         .min(-180).max(180)
-        .required()
+        .optional()
         .messages({
           'number.base': 'lng must be a number',
           'number.min':  'lng must be between -180 and 180',
           'number.max':  'lng must be between -180 and 180',
-          'any.required':'lng (longitude) is required',
         }),
 
       // ── Search radius in metres (default 5000, max 3000 km) ──

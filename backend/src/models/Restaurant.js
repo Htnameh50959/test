@@ -277,7 +277,7 @@ const restaurantSchema = new mongoose.Schema(
 
 /** Returns only available (non-deleted, in-stock) menu items. */
 restaurantSchema.virtual('availableMenu').get(function () {
-  return this.menu.filter((item) => item.isAvailable && !item.isDeleted);
+  return (this.menu || []).filter((item) => item.isAvailable && !item.isDeleted);
 });
 
 /** Checks whether the restaurant is currently open based on operating hours. */
