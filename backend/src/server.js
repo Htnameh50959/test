@@ -104,8 +104,8 @@ const myHttpServer = http.createServer(myApp);
 // Initialize Socket.io (Real-time engine).
 initSocket(myHttpServer);
 
-// We decide which PORT our server will listen on. 5000 is common.
-const thePortNumber = process.env.PORT || 5000;
+// We decide which PORT our server will listen on.
+const thePortNumber = process.env.PORT || 3001;
 
 // Finally, we start the server!
 const serverInstance = myHttpServer.listen(thePortNumber, function() {

@@ -7,7 +7,6 @@ export default defineConfig({
   plugins: [react()],
 
   // ── Path aliases ────────────────────────────────────────────────────────────
-  // Allows: import { authSlice } from '@/redux/slices/authSlice'
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -24,16 +23,18 @@ export default defineConfig({
 
   // ── Dev server ──────────────────────────────────────────────────────────────
   server: {
-    port: 3000,
+    host: '0.0.0.0',
+    port: 5000,
+    allowedHosts: true,
     // Proxy API calls to backend during development (avoids CORS issues).
     proxy: {
       '/api': {
-        target:      'http://localhost:5000',
+        target:      'http://localhost:3001',
         changeOrigin: true,
         secure:      false,
       },
       '/socket.io': {
-        target:  'http://localhost:5000',
+        target:  'http://localhost:3001',
         ws:      true,
         changeOrigin: true,
       },
@@ -47,16 +48,15 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        // Split vendor chunks to improve caching.
-      manualChunks(id) {
-        if (id.includes('node_modules')) {
-          if (['react', 'react-dom', 'react-router-dom'].some((p) => id.includes(p))) return 'vendor';
-          if (['@reduxjs/toolkit', 'react-redux', 'redux'].some((p) => id.includes(p)))  return 'redux';
-          if (['@mui', '@emotion'].some((p) => id.includes(p)))                           return 'mui';
-          if (['leaflet', 'react-leaflet'].some((p) => id.includes(p)))                  return 'maps';
-          if (id.includes('socket.io-client'))                                            return 'sockets';
-        }
-      },
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (['react', 'react-dom', 'react-router-dom'].some((p) => id.includes(p))) return 'vendor';
+            if (['@reduxjs/toolkit', 'react-redux', 'redux'].some((p) => id.includes(p)))  return 'redux';
+            if (['@mui', '@emotion'].some((p) => id.includes(p)))                           return 'mui';
+            if (['leaflet', 'react-leaflet'].some((p) => id.includes(p)))                  return 'maps';
+            if (id.includes('socket.io-client'))                                            return 'sockets';
+          }
+        },
       },
     },
   },
