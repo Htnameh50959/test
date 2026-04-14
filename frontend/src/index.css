@@ -1,0 +1,40 @@
+/* src/index.css — Global base styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --color-primary:   #E63946;
+  --color-secondary: #457B9D;
+  --color-bg:        #F8F9FA;
+  --color-surface:   #FFFFFF;
+  --color-text:      #1D3557;
+  --border-radius:   12px;
+  --shadow-sm:       0 1px 4px rgba(0,0,0,0.08);
+  --shadow-md:       0 4px 16px rgba(0,0,0,0.12);
+  --transition:      0.2s ease;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', 'Roboto', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+
+/* Page loading animation used by PageLoader component */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.page-enter { animation: fadeIn 0.25s var(--transition) both; }
