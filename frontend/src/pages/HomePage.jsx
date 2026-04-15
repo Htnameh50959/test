@@ -175,7 +175,7 @@ export default function HomePage() {
         </Box>
 
         <Grid container spacing={3}>
-          {loading
+          {loading || geoLoading
             ? Array.from({ length: 6 }).map((_, i) => (
                 <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={i}>
                   <RestaurantSkeleton />
@@ -189,7 +189,7 @@ export default function HomePage() {
           }
         </Grid>
 
-        {!loading && displayResults.length === 0 && (
+        {!(loading || geoLoading) && displayResults.length === 0 && (
           <Box sx={{
             textAlign: 'center', py: 10, mt: 4,
             bgcolor: alpha(theme.palette.primary.main, 0.04),

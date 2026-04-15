@@ -1,6 +1,6 @@
-// src/services/authService.js
 import api from './api';
 
+// src/services/authService.js
 export const authService = {
   login:         (credentials) => api.post('/auth/login', credentials),
   register:      (data)        => api.post('/auth/register', data),
@@ -12,8 +12,6 @@ export const authService = {
 };
 
 // src/services/restaurantsService.js
-import api from './api';
-
 export const restaurantsService = {
   search:     (params)              => api.get('/restaurants/search', { params }),
   getById:    (id)                  => api.get(`/restaurants/${id}`),
@@ -22,8 +20,6 @@ export const restaurantsService = {
 };
 
 // src/services/cartService.js
-import api from './api';
-
 export const cartService = {
   getCart:    ()                       => api.get('/cart'),
   addItem:    (data)                   => api.post('/cart/items', data),
@@ -33,8 +29,6 @@ export const cartService = {
 };
 
 // src/services/ordersService.js
-import api from './api';
-
 export const ordersService = {
   create:     (data)          => api.post('/orders', data),
   getHistory: (params)        => api.get('/orders', { params }),
@@ -44,12 +38,25 @@ export const ordersService = {
 };
 
 // src/services/reviewsService.js
-import api from './api';
-
 export const reviewsService = {
   submit:        (data)                 => api.post('/reviews', data),
   getForOrder:   (orderId)              => api.get(`/reviews?orderId=${orderId}`),
   getSuggestions:(data)                 => api.post('/reviews/suggestions', data),
   markHelpful:   (id)                   => api.post(`/reviews/${id}/helpful`),
   respond:       (id, text)             => api.post(`/reviews/${id}/respond`, { text }),
+};
+
+// src/services/merchantService.js
+export const merchantService = {
+  getMenu:           (restaurantId) => api.get('/merchant/menu', { params: { restaurantId } }),
+  addMenuItem:       (data)         => api.post('/merchant/menu', data),
+  updateMenuItem:    (id, data)     => api.put(`/merchant/menu/${id}`, data),
+  deleteMenuItem:    (id)           => api.delete(`/merchant/menu/${id}`),
+  toggleAvailability: (id, isAvail) => api.put(`/merchant/menu/${id}/availability`, { isAvailable: isAvail }),
+  getDashboard:      (restaurantId) => api.get('/merchant/dashboard', { params: { restaurantId } }),
+  acceptOrder:       (id, data)     => api.put(`/merchant/orders/${id}/accept`, data),
+  rejectOrder:       (id, reason)   => api.put(`/merchant/orders/${id}/reject`, { reason }),
+  updateOrderStatus: (id, data)     => api.put(`/merchant/orders/${id}/status`, data),
+  getBookings:       (params)       => api.get('/merchant/bookings', { params }),
+  updateBookingStatus:(id, status)  => api.put(`/merchant/bookings/${id}/status`, { status }),
 };

@@ -4,7 +4,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, Typography, Box, alpha, useTheme
 } from '@mui/material';
-import { ErrorOutline as ErrorIcon, Payment as PaymentIcon, Refresh as RetryIcon } from '@mui/icons-material';
+import { Error as ErrorIcon, Payment as PaymentIcon, Refresh as RetryIcon } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { setStep } from '@/redux/slices/checkoutSlice';
 

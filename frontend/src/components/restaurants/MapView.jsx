@@ -22,8 +22,24 @@ const createRestaurantIcon = (theme) => new L.Icon({
 const MapUpdater = ({ center }) => {
   const map = useMap();
   useEffect(() => {
-    if (center) map.setView(center, map.getZoom());
+    if (center) {
+      map.setView(center, map.getZoom());
+      // Classic Leaflet fix: invalidating size ensures tiles fill the container
+      // when it becomes visible or changes size.
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 100);
+    }
   }, [center, map]);
+
+  // Also invalidate size on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [map]);
+
   return null;
 };
 

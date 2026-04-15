@@ -33,6 +33,7 @@ const Order       = require('../models/Order');
 const Restaurant  = require('../models/Restaurant');
 const Review      = require('../models/Review');
 const User        = require('../models/User');
+const Booking      = require('../models/Booking');
 const ErrorResponse = require('../utils/errorResponse');
 const { initiateRefund } = require('../utils/paymentGateway');
 const { invalidateRestaurantCache } = require('../utils/cache');
@@ -953,6 +954,80 @@ exports.getReviewSentiment = async (req, res, next) => {
         })),
         recentReviews,
       },
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ===========================================================================
+// 14. GET RESERVATIONS
+// GET /api/v1/merchant/bookings
+// ===========================================================================
+exports.getBookings = async (req, res, next) => {
+  try {
+    const restaurant = await resolveRestaurant(req, next, { select: '_id' });
+    if (!restaurant) return;
+
+    const { status, date } = req.query;
+    const filter = { restaurant: restaurant._id };
+
+    if (status) filter.status = status;
+    if (date) {
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+      filter.date = { $gte: start, $lte: end };
+    }
+
+    const bookings = await Booking.find(filter)
+      .populate('customer', 'profile.firstName profile.lastName profile.phone profile.avatar')
+      .sort({ date: 1, timeSlot: 1 });
+
+    res.status(200).json({
+      success: true,
+      count:   bookings.length,
+      data:    bookings
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ===========================================================================
+// 15. UPDATE RESERVATION STATUS
+// PUT /api/v1/merchant/bookings/:id/status
+// Body: { status, tableNumber? }
+// ===========================================================================
+exports.updateBookingStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status, tableNumber } = req.body;
+
+    if (!status) return next(new ErrorResponse('status is required.', 400));
+
+    const booking = await Booking.findById(id);
+    if (!booking) return next(new ErrorResponse('Booking not found.', 404));
+
+    // Ownership check via restaurant
+    const restaurant = await Restaurant.findById(booking.restaurant).select('merchantId');
+    if (!restaurant || (restaurant.merchantId.toString() !== req.user._id.toString() 
+                        && req.user.role !== 'admin')) {
+      return next(new ErrorResponse('You do not own the restaurant for this booking.', 403));
+    }
+
+    booking.status = status;
+    if (tableNumber !== undefined) booking.tableNumber = tableNumber;
+
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Booking status updated to ${status}.`,
+      data:    booking
     });
 
   } catch (err) {

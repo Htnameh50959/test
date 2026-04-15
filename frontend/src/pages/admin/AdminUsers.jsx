@@ -91,7 +91,7 @@ export default function AdminUsers() {
             </Table>
          </TableContainer>
       </Paper>
-    </AdminUsersLayout>
+    </AdminLayout>
   );
 }
 

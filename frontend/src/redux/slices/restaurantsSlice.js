@@ -137,9 +137,16 @@ const restaurantsSlice = createSlice({
       .addCase(searchRestaurants.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(searchRestaurants.fulfilled, (state, { payload }) => {
         state.loading = false;
-        const results = Array.isArray(payload.data)
-          ? payload.data
-          : (payload.data?.[0]?.results ?? []);
+        // Handle varying response shapes from backend (flat data array vs faceted results)
+        let results = [];
+        if (Array.isArray(payload.data)) {
+          results = payload.data;
+        } else if (payload.data?.results && Array.isArray(payload.data.results)) {
+          results = payload.data.results;
+        } else if (Array.isArray(payload.data?.[0]?.results)) {
+          results = payload.data[0].results;
+        }
+        
         state.searchResults = results;
         state.searchPagination = {
           total: payload.pagination?.total ?? results.length,

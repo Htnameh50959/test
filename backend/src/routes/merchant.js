@@ -52,6 +52,8 @@ const {
   getPopularItems,
   getPeakHours,
   getReviewSentiment,
+  getBookings,
+  updateBookingStatus,
 } = require('../controllers/merchant');
 
 // ── Middleware ────────────────────────────────────────────────────────────────
@@ -170,5 +172,23 @@ router.get('/analytics/peak-hours', getPeakHours);
  * Query: days=30 (max 365)
  */
 router.get('/reviews/sentiment', getReviewSentiment);
+
+// =============================================================================
+// RESERVATIONS
+// =============================================================================
+
+/**
+ * GET /api/v1/merchant/bookings
+ * Fetch all table reservations for the restaurant.
+ * Query: ?status=pending|confirmed|completed|cancelled|no-show & ?date=YYYY-MM-DD
+ */
+router.get('/bookings', getBookings);
+
+/**
+ * PUT /api/v1/merchant/bookings/:id/status
+ * Update booking status (confirm, complete, cancel, etc.)
+ * Body: { status, tableNumber? }
+ */
+router.put('/bookings/:id/status', updateBookingStatus);
 
 module.exports = router;
