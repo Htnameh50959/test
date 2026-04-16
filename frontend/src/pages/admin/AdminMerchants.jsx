@@ -71,10 +71,13 @@ export default function AdminMerchants() {
                size="small"
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
-               InputProps={{ 
-                  startAdornment: <InputAdornment position="start"><Search /></InputAdornment>,
-                  sx: { borderRadius: 3, width: 350, bgcolor: '#FBF9F6' }
-               }} 
+               slotProps={{ 
+                  input: { 
+                    startAdornment: <InputAdornment position="start"><Search /></InputAdornment>,
+                    sx: { borderRadius: 3, bgcolor: '#FBF9F6' }
+                  }
+               }}
+               sx={{ width: 350 }}
             />
             <Stack direction="row" spacing={2}>
                <Button startIcon={<FilterList />} sx={{ fontWeight: 800 }}>Filter</Button>

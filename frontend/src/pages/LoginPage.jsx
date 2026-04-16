@@ -121,12 +121,15 @@ export default function LoginPage() {
             onBlur={formik.handleBlur}
             error={formik.touched.email && Boolean(formik.errors.email)}
             helperText={formik.touched.email && formik.errors.email}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Email fontSize="small" color="action" />
-                </InputAdornment>
-              ),
+            autoComplete="email"
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Email fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+              },
             }}
             sx={{ mb: 3 }}
           />
@@ -142,19 +145,22 @@ export default function LoginPage() {
             onBlur={formik.handleBlur}
             error={formik.touched.password && Boolean(formik.errors.password)}
             helperText={formik.touched.password && formik.errors.password}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Lock fontSize="small" color="action" />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton edge="end" onClick={() => setShowPw((p) => !p)}>
-                    {showPw ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
+            autoComplete="current-password"
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton edge="end" onClick={() => setShowPw((p) => !p)}>
+                      {showPw ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
             }}
             sx={{ mb: 2 }}
           />

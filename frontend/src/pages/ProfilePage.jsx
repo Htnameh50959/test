@@ -263,7 +263,7 @@ export default function ProfilePage() {
             <Paper elevation={1} sx={{ p: 4, borderRadius: 4 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
 
-                <Typography variant="h6" fontWeight={700} display="flex" alignItems="center">
+                <Typography variant="h6" fontWeight={700} sx={{ display: 'flex', alignItems: 'center' }}>
                   <LocationOn sx={{ mr: 1.5, color: 'primary.main' }} />
                   Saved Addresses
                 </Typography>

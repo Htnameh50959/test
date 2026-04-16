@@ -256,6 +256,7 @@ export default function RegisterPage() {
                 name="password"
                 type="password"
                 placeholder="••••••••"
+                autoComplete="new-password"
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -296,6 +297,7 @@ export default function RegisterPage() {
                 name="confirmPassword"
                 type="password"
                 placeholder="••••••••"
+                autoComplete="new-password"
                 value={formik.values.confirmPassword}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}

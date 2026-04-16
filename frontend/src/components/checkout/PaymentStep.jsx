@@ -110,7 +110,7 @@ const PaymentStep = () => {
                           onChange={formik.handleChange}
                           error={formik.touched.cardNumber && Boolean(formik.errors.cardNumber)}
                           helperText={formik.touched.cardNumber && formik.errors.cardNumber}
-                          InputProps={{ endAdornment: <CardIcon color="action" /> }}
+                          slotProps={{ input: { endAdornment: <CardIcon color="action" /> } }}
                         />
                       </Grid>
                       <Grid size={{ xs: 12 }}>

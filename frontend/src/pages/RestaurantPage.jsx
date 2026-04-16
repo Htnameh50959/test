@@ -331,7 +331,7 @@ const RestaurantPage = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                    <Typography variant="h3" color="success.main">4.9</Typography>
                    <Box>
-                     <Typography variant="subtitle2" fontWeight={800} display="flex" alignItems="center" gap={1}>
+                     <Typography variant="subtitle2" fontWeight={800} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                        <Box component="span">✦</Box> AI Summary of 1,240 Reviews
                      </Typography>
                      <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>

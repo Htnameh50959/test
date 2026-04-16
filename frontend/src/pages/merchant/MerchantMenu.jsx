@@ -533,7 +533,7 @@ export default function MerchantMenu() {
                         fullWidth
                         error={touched.price && !!errors.price}
                         helperText={touched.price && errors.price}
-                        InputProps={{ startAdornment: <InputAdornment position="start">₹</InputAdornment> }}
+                        slotProps={{ input: { startAdornment: <InputAdornment position="start">₹</InputAdornment> } }}
                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
                       />
                     </Grid>
