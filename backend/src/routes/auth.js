@@ -25,6 +25,8 @@ const {
   logout,
   changePassword,
   checkEmail,
+  forgotPassword,
+  resetPassword,
 } = require('../controllers/auth');
 
 // ── Middleware ────────────────────────────────────────────────────────────────
@@ -63,6 +65,8 @@ router.post(
  * Body: { email }
  */
 router.post('/check-email', checkEmail);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 
 // =============================================================================
 // PROTECTED ROUTES  (JWT required)

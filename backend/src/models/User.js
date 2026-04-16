@@ -72,6 +72,21 @@ const addressSchema = new mongoose.Schema(
 );
 
 // ---------------------------------------------------------------------------
+// SUB-SCHEMA: in-app notification
+// ---------------------------------------------------------------------------
+const notificationSchema = new mongoose.Schema(
+  {
+    type:    { type: String, enum: ['order', 'promo', 'review', 'event', 'system'], default: 'system' },
+    title:   { type: String, required: true },
+    message: { type: String, required: true },
+    isRead:  { type: Boolean, default: false },
+    link:    { type: String, default: null },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: true }
+);
+
+// ---------------------------------------------------------------------------
 // SUB-SCHEMA: loyalty / gamification
 // ---------------------------------------------------------------------------
 const loyaltySchema = new mongoose.Schema(
@@ -192,6 +207,22 @@ const userSchema = new mongoose.Schema(
       totalDeliveries: { type: Number, default: 0 },
       rating:          { type: Number, default: 0, min: 0, max: 5 },
     },
+
+    // ------------------------------------------------------------------
+    // Favourites — restaurants the user has saved/liked
+    // ------------------------------------------------------------------
+    favorites: [{ type: mongoose.Schema.ObjectId, ref: 'Restaurant' }],
+
+    // ------------------------------------------------------------------
+    // In-app notifications (capped at 50)
+    // ------------------------------------------------------------------
+    notifications: { type: [notificationSchema], default: [] },
+
+    // ------------------------------------------------------------------
+    // Password reset tokens (select:false — never returned in queries)
+    // ------------------------------------------------------------------
+    forgotPasswordToken:  { type: String,  select: false },
+    forgotPasswordExpire: { type: Date,    select: false },
 
     // ------------------------------------------------------------------
     // Push-notification / device tokens

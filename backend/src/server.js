@@ -79,6 +79,7 @@ myApp.use('/api/v1/courier', courierRoutes);
 
 myApp.use('/api/v1/admin', require('./routes/admin'));
 myApp.use('/api/v1/admin/performance', require('./routes/performance'));
+myApp.use('/api/v1/promos', require('./routes/promos'));
 
 // Health check route
 myApp.get('/api/v1/health', function(req, res) {

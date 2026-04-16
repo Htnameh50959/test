@@ -33,9 +33,16 @@ const AdminDashboard      = lazy(() => import('@/pages/admin/AdminDashboard'));
 const AdminUsers          = lazy(() => import('@/pages/admin/AdminUsers'));
 const AdminMerchants      = lazy(() => import('@/pages/admin/AdminMerchants'));
 const AdminPerformance    = lazy(() => import('@/pages/admin/AdminPerformance'));
+const AdminOrders         = lazy(() => import('@/pages/admin/AdminOrders'));
 const ReservationsPage    = lazy(() => import('@/pages/ReservationsPage'));
 const NotFoundPage        = lazy(() => import('@/pages/NotFoundPage'));
-const CourierDashboard   = lazy(() => import('@/pages/courier/CourierDashboard'));
+const CourierDashboard    = lazy(() => import('@/pages/courier/CourierDashboard'));
+const EventsPage          = lazy(() => import('@/pages/EventsPage'));
+const FavoritesPage       = lazy(() => import('@/pages/FavoritesPage'));
+const NotificationsPage   = lazy(() => import('@/pages/NotificationsPage'));
+const LoyaltyPage         = lazy(() => import('@/pages/LoyaltyPage'));
+const ForgotPasswordPage  = lazy(() => import('@/pages/ForgotPasswordPage'));
+const ResetPasswordPage   = lazy(() => import('@/pages/ResetPasswordPage'));
 import ErrorPage from '@/pages/ErrorPage';
 
 
@@ -59,6 +66,7 @@ const router = createBrowserRouter([
       { path: 'search',            element: wrap(SearchPage) },
       { path: 'reservations',      element: wrap(ReservationsPage) },
       { path: 'reservations/:id',  element: wrap(ReservationsPage) },
+      { path: 'events',            element: wrap(EventsPage) },
 
       // Protected routes — require authentication
       {
@@ -69,6 +77,9 @@ const router = createBrowserRouter([
           { path: 'orders/:id',      element: wrap(OrderTrackingPage) },
           { path: 'orders/:id/success', element: wrap(OrderConfirmationPage) },
           { path: 'profile',         element: wrap(ProfilePage) },
+          { path: 'favorites',       element: wrap(FavoritesPage) },
+          { path: 'notifications',   element: wrap(NotificationsPage) },
+          { path: 'loyalty',         element: wrap(LoyaltyPage) },
         ],
       },
     ],
@@ -98,6 +109,7 @@ const router = createBrowserRouter([
       { path: 'users', element: wrap(AdminUsers) },
       { path: 'merchants', element: wrap(AdminMerchants) },
       { path: 'performance', element: wrap(AdminPerformance) },
+      { path: 'orders', element: wrap(AdminOrders) },
     ],
   },
   {
@@ -119,6 +131,8 @@ const router = createBrowserRouter([
       { path: 'login',             element: wrap(LoginPage) },
       { path: 'register',          element: wrap(RegisterPage) },
       { path: 'merchant/register', element: wrap(MerchantRegisterPage) },
+      { path: 'forgot-password',   element: wrap(ForgotPasswordPage) },
+      { path: 'reset-password',    element: wrap(ResetPasswordPage) },
     ],
   },
 

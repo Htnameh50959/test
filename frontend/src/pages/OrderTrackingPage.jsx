@@ -104,7 +104,7 @@ const OrderTrackingPage = () => {
             <Stack spacing={4}>
               {/* Order Summary Card */}
               <Paper sx={{ p: 4, borderRadius: 6, boxShadow: '0 8px 30px rgba(0,0,0,0.03)' }}>
-                <Typography variant="subtitle2" fontWeight={900} display="flex" alignItems="center" gap={1.5} sx={{ mb: 4 }}>
+                <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 1.5 }}>
                   <RestaurantIcon sx={{ color: 'primary.main', fontSize: 20 }} /> Order Summary
                 </Typography>
                 
@@ -123,7 +123,7 @@ const OrderTrackingPage = () => {
 
               {/* Reservation Info Card */}
               <Paper sx={{ p: 4, borderRadius: 6, borderLeft: '6px solid', borderColor: 'success.main', bgcolor: '#FBF9F6' }}>
-                 <Typography variant="subtitle2" fontWeight={900} display="flex" alignItems="center" gap={1.5} sx={{ mb: 2 }}>
+                 <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <Box component="span" sx={{ fontSize: 20 }}>☰</Box> Reservation Fixed
                  </Typography>
                  <Typography variant="subtitle2" fontWeight={800}>{order.restaurant?.name || 'The Rooftop Lounge'}</Typography>

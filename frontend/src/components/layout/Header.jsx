@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   AppBar,
@@ -30,11 +30,16 @@ import {
   LocationOn,
   ExitToApp,
   Store,
-  Security
+  Security,
+  FavoriteBorder,
+  NotificationsOutlined,
+  EmojiEvents,
+  ConfirmationNumber,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { selectIsAuthenticated, selectUser, logout } from '@/redux/slices/authSlice';
+import { selectUnreadCount, fetchNotifications } from '@/redux/slices/notificationsSlice';
 import CartIcon from '../cart/CartIcon';
 
 export default function Header({ onMobileMenuOpen }) {
@@ -46,9 +51,16 @@ export default function Header({ onMobileMenuOpen }) {
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectUser);
+  const unreadCount = useSelector(selectUnreadCount);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [location, setLocation] = useState('');
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchNotifications());
+    }
+  }, [isAuthenticated, dispatch]);
 
   const initials = user
     ? `${user.profile?.firstName?.[0] ?? ''}${user.profile?.lastName?.[0] ?? ''}`.toUpperCase() || 'U'
@@ -119,7 +131,8 @@ export default function Header({ onMobileMenuOpen }) {
               {[
                 { label: 'Explore', path: '/' },
                 { label: 'Restaurants', path: '/search' },
-                { label: 'My Activity', path: '/orders' }
+                { label: 'Events', path: '/events' },
+                ...(isAuthenticated ? [{ label: 'My Orders', path: '/orders' }] : []),
               ].map(item => (
                 <Typography
                   key={item.label}
@@ -162,9 +175,26 @@ export default function Header({ onMobileMenuOpen }) {
         )}
 
         {/* Right: User actions */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1.5 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
           {/* Cart Icon & Drawer Trigger */}
           <CartIcon />
+
+          {isAuthenticated && !isMobile && (
+            <>
+              <Tooltip title="Favorites">
+                <IconButton onClick={() => navigate('/favorites')} size="small" sx={{ color: 'text.secondary' }}>
+                  <FavoriteBorder />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Notifications">
+                <IconButton onClick={() => navigate('/notifications')} size="small" sx={{ color: 'text.secondary' }}>
+                  <Badge badgeContent={unreadCount > 0 ? unreadCount : null} color="error" max={9}>
+                    <NotificationsOutlined />
+                  </Badge>
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
 
 
           {isAuthenticated ? (
@@ -225,6 +255,18 @@ export default function Header({ onMobileMenuOpen }) {
 
                 <MenuItem onClick={() => { navigate('/orders'); setAnchorEl(null); }}>
                   <Receipt fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} /> My Orders
+                </MenuItem>
+                <MenuItem onClick={() => { navigate('/favorites'); setAnchorEl(null); }}>
+                  <FavoriteBorder fontSize="small" sx={{ mr: 1.5, color: 'error.main' }} /> My Favorites
+                </MenuItem>
+                <MenuItem onClick={() => { navigate('/loyalty'); setAnchorEl(null); }}>
+                  <EmojiEvents fontSize="small" sx={{ mr: 1.5, color: '#FFB300' }} /> Loyalty & Rewards
+                </MenuItem>
+                <MenuItem onClick={() => { navigate('/notifications'); setAnchorEl(null); }}>
+                  <Badge badgeContent={unreadCount > 0 ? unreadCount : null} color="error">
+                    <NotificationsOutlined fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
+                  </Badge>
+                  <Box component="span" sx={{ ml: 1.5 }}>Notifications</Box>
                 </MenuItem>
                 <Divider />
                 <MenuItem 

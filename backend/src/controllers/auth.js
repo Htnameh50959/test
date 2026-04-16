@@ -267,3 +267,63 @@ exports.checkEmail = async (req, res, next) => {
     next(err);
   }
 };
+
+// ===========================================================================
+// FORGOT PASSWORD
+// POST /api/v1/auth/forgot-password
+// ===========================================================================
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const crypto = require('crypto');
+    const { email } = req.body;
+    if (!email) return next(new ErrorResponse('Please provide an email address.', 400));
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    if (!user) return next(new ErrorResponse('No account found with that email address.', 404));
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.forgotPasswordToken  = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.forgotPasswordExpire = Date.now() + 60 * 60 * 1000; // 1 hour
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset token generated. In production this would be emailed.',
+      resetToken,
+      hint: `Use this token on the reset-password page to set a new password.`,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ===========================================================================
+// RESET PASSWORD
+// POST /api/v1/auth/reset-password
+// ===========================================================================
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const crypto = require('crypto');
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return next(new ErrorResponse('Token and new password are required.', 400));
+    }
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const user = await User.findOne({
+      forgotPasswordToken:  hashedToken,
+      forgotPasswordExpire: { $gt: Date.now() },
+    }).select('+forgotPasswordToken +forgotPasswordExpire +password');
+
+    if (!user) return next(new ErrorResponse('Invalid or expired reset token.', 400));
+
+    user.password             = newPassword;
+    user.forgotPasswordToken  = undefined;
+    user.forgotPasswordExpire = undefined;
+    await user.save();
+
+    issueToken(user, 200, res);
+  } catch (err) {
+    next(err);
+  }
+};

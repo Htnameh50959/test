@@ -122,3 +122,39 @@ exports.updateUserStatus = async (req, res, next) => {
     next(err);
   }
 };
+
+const Order = require('../models/Order');
+const Event = require('../models/Event');
+
+// @desc    Get all orders (admin view)
+// @route   GET /api/v1/admin/orders
+// @access  Private/Admin
+exports.getAllOrders = async (req, res, next) => {
+  try {
+    const { status, page = 1, limit = 20 } = req.query;
+    const filter = {};
+    if (status) filter.status = status;
+
+    const [orders, total] = await Promise.all([
+      Order.find(filter)
+        .populate('userId', 'profile.firstName profile.lastName email')
+        .populate('restaurantId', 'name')
+        .sort('-createdAt')
+        .skip((page - 1) * limit)
+        .limit(Number(limit)),
+      Order.countDocuments(filter),
+    ]);
+
+    res.status(200).json({ success: true, count: orders.length, total, data: orders });
+  } catch (err) { next(err); }
+};
+
+// @desc    Get all events (admin view)
+// @route   GET /api/v1/admin/events
+// @access  Private/Admin
+exports.getAllEvents = async (req, res, next) => {
+  try {
+    const events = await Event.find().populate('restaurantId', 'name').sort('-date');
+    res.status(200).json({ success: true, count: events.length, data: events });
+  } catch (err) { next(err); }
+};

@@ -331,3 +331,129 @@ exports.setDefaultAddress = async (req, res, next) => {
     next(err);
   }
 };
+
+const Restaurant = require('../models/Restaurant');
+
+// ---------------------------------------------------------------------------
+// FAVORITES
+// ---------------------------------------------------------------------------
+
+exports.getFavorites = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).populate('favorites', 'name cuisine rating deliveryTime priceRange images address isVerified');
+    if (!user) return next(new ErrorResponse('User not found.', 404));
+    res.status(200).json({ success: true, count: user.favorites.length, data: user.favorites });
+  } catch (err) { next(err); }
+};
+
+exports.addFavorite = async (req, res, next) => {
+  try {
+    const { restaurantId } = req.body;
+    if (!restaurantId) return next(new ErrorResponse('restaurantId is required.', 400));
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) return next(new ErrorResponse('Restaurant not found.', 404));
+    const user = await User.findById(req.user._id);
+    if (!user.favorites.map(String).includes(String(restaurantId))) {
+      user.favorites.push(restaurantId);
+      await user.save();
+    }
+    res.status(200).json({ success: true, message: 'Added to favorites.' });
+  } catch (err) { next(err); }
+};
+
+exports.removeFavorite = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new ErrorResponse('User not found.', 404));
+    user.favorites = user.favorites.filter((id) => String(id) !== req.params.restaurantId);
+    await user.save();
+    res.status(200).json({ success: true, message: 'Removed from favorites.' });
+  } catch (err) { next(err); }
+};
+
+// ---------------------------------------------------------------------------
+// LOYALTY
+// ---------------------------------------------------------------------------
+
+exports.getLoyalty = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new ErrorResponse('User not found.', 404));
+    const tierThresholds = { bronze: 0, silver: 1000, gold: 5000, platinum: 10000 };
+    const tiers = ['bronze', 'silver', 'gold', 'platinum'];
+    const currentIndex = tiers.indexOf(user.loyalty.tier);
+    const nextTier = tiers[currentIndex + 1] || null;
+    const pointsToNext = nextTier ? tierThresholds[nextTier] - user.loyalty.totalEarned : null;
+    res.status(200).json({
+      success: true,
+      data: {
+        ...user.loyalty.toObject(),
+        nextTier,
+        pointsToNext,
+        tierThresholds,
+      }
+    });
+  } catch (err) { next(err); }
+};
+
+exports.redeemLoyalty = async (req, res, next) => {
+  try {
+    const { points } = req.body;
+    if (!points || points < 100) return next(new ErrorResponse('Minimum redemption is 100 points.', 400));
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new ErrorResponse('User not found.', 404));
+    if (user.loyalty.points < points) return next(new ErrorResponse('Insufficient points.', 400));
+    const discount = Math.floor(points / 10); // 10 points = ₹1
+    await user.awardPoints(-points);
+    await user.save();
+    res.status(200).json({ success: true, message: `Redeemed ${points} points for ₹${discount} discount.`, discount, remainingPoints: user.loyalty.points });
+  } catch (err) { next(err); }
+};
+
+// ---------------------------------------------------------------------------
+// NOTIFICATIONS
+// ---------------------------------------------------------------------------
+
+exports.getNotifications = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new ErrorResponse('User not found.', 404));
+    const sorted = [...user.notifications].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    res.status(200).json({ success: true, count: sorted.length, unreadCount: sorted.filter(n => !n.isRead).length, data: sorted });
+  } catch (err) { next(err); }
+};
+
+exports.markNotificationRead = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new ErrorResponse('User not found.', 404));
+    const notif = user.notifications.id(req.params.id);
+    if (!notif) return next(new ErrorResponse('Notification not found.', 404));
+    notif.isRead = true;
+    await user.save();
+    res.status(200).json({ success: true, message: 'Marked as read.' });
+  } catch (err) { next(err); }
+};
+
+exports.markAllNotificationsRead = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new ErrorResponse('User not found.', 404));
+    user.notifications.forEach(n => { n.isRead = true; });
+    await user.save();
+    res.status(200).json({ success: true, message: 'All notifications marked as read.' });
+  } catch (err) { next(err); }
+};
+
+exports.addNotification = async (req, res, next) => {
+  try {
+    const { userId, type, title, message, link } = req.body;
+    const targetId = userId || req.user._id;
+    const user = await User.findById(targetId);
+    if (!user) return next(new ErrorResponse('User not found.', 404));
+    user.notifications.unshift({ type: type || 'system', title, message, link: link || null });
+    if (user.notifications.length > 50) user.notifications = user.notifications.slice(0, 50);
+    await user.save();
+    res.status(201).json({ success: true, message: 'Notification added.' });
+  } catch (err) { next(err); }
+};

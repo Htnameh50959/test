@@ -211,7 +211,7 @@ export default function ProfilePage() {
           <Stack spacing={4}>
             {/* Personal Details Section */}
             <Paper elevation={1} sx={{ p: 4, borderRadius: 4 }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }} display="flex" alignItems="center">
+              <Typography variant="h6" fontWeight={700} sx={{ mb: 3, display: 'flex', alignItems: 'center' }}>
                 <Person sx={{ mr: 1.5, color: 'primary.main' }} />
                 Account Settings
               </Typography>

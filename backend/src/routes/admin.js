@@ -9,7 +9,9 @@ const {
   getAllUsers,
   getAllMerchants,
   verifyMerchant,
-  updateUserStatus
+  updateUserStatus,
+  getAllOrders,
+  getAllEvents,
 } = require('../controllers/admin');
 
 // Middleware
@@ -29,5 +31,11 @@ router.put('/users/:id/status', updateUserStatus);
 // Merchant Management
 router.get('/merchants', getAllMerchants);
 router.put('/merchants/:id/verify', verifyMerchant);
+
+// Orders
+router.get('/orders', getAllOrders);
+
+// Events
+router.get('/events', getAllEvents);
 
 module.exports = router;

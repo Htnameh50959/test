@@ -31,6 +31,15 @@ const {
   updateAddress,
   deleteAddress,
   setDefaultAddress,
+  getFavorites,
+  addFavorite,
+  removeFavorite,
+  getLoyalty,
+  redeemLoyalty,
+  getNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  addNotification,
 } = require('../controllers/users');
 
 // ── Middleware ────────────────────────────────────────────────────────────────
@@ -117,5 +126,26 @@ router.put(
  * Removes the address. If it was the default, the next address is promoted.
  */
 router.delete('/addresses/:addressId', deleteAddress);
+
+// =============================================================================
+// FAVORITES ROUTES
+// =============================================================================
+router.get('/favorites', getFavorites);
+router.post('/favorites', addFavorite);
+router.delete('/favorites/:restaurantId', removeFavorite);
+
+// =============================================================================
+// LOYALTY ROUTES
+// =============================================================================
+router.get('/loyalty', getLoyalty);
+router.post('/loyalty/redeem', redeemLoyalty);
+
+// =============================================================================
+// NOTIFICATIONS ROUTES
+// =============================================================================
+router.get('/notifications', getNotifications);
+router.patch('/notifications/read-all', markAllNotificationsRead);
+router.patch('/notifications/:id/read', markNotificationRead);
+router.post('/notifications', addNotification);
 
 module.exports = router;
