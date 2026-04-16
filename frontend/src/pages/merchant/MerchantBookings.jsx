@@ -1,8 +1,19 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  Box, Typography, Grid, Paper, Stack, Button, Avatar, Chip, 
-  CircularProgress, IconButton, Tooltip, Divider
+import {
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Divider,
+  Grid,
+  IconButton,
+  Paper,
+  Stack,
+  Table,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import {
   CalendarMonth, Person, Timer, EventAvailable, Map,

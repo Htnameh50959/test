@@ -1,8 +1,17 @@
 // src/pages/CheckoutPage.jsx
 import React, { useEffect } from 'react';
 import {
-  Box, Container, Grid, Stepper, Step, StepLabel,
-  Typography, useTheme, useMediaQuery, Paper
+  Box,
+  Container,
+  Grid,
+  Paper,
+  Step,
+  StepContent,
+  StepLabel,
+  Stepper,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';

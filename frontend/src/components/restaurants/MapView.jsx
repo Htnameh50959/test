@@ -1,7 +1,17 @@
 import React, { useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { Box, Typography, Button, Rating, Paper, alpha, useTheme, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Paper,
+  Rating,
+  Typography,
+  Zoom,
+  alpha,
+  useTheme,
+} from '@mui/material';
 import { Star, Restaurant, DirectionsRun } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';

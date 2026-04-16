@@ -2,22 +2,24 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  IconButton,
+  Avatar,
   Badge,
   Box,
+  Button,
+  Divider,
+  Drawer,
+  IconButton,
+  InputBase,
   Menu,
   MenuItem,
-  Avatar,
-  Divider,
-  InputBase,
   Paper,
+  Stack,
+  Toolbar,
   Tooltip,
-  useTheme,
-  useMediaQuery,
+  Typography,
   alpha,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import {
   Receipt,
@@ -288,14 +290,5 @@ export default function Header({ onMobileMenuOpen }) {
         </Box>
       )}
     </AppBar>
-  );
-}
-
-// Helper component for stacking buttons
-function Stack({ children, direction = 'row', spacing = 1 }) {
-  return (
-    <Box sx={{ display: 'flex', flexDirection: direction, gap: spacing }}>
-      {children}
-    </Box>
   );
 }

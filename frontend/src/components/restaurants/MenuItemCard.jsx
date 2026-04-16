@@ -1,5 +1,15 @@
 import React from 'react';
-import { Card, Box, Typography, Button, IconButton, alpha, useTheme } from '@mui/material';
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  IconButton,
+  Select,
+  Typography,
+  alpha,
+  useTheme,
+} from '@mui/material';
 import { Add } from '@mui/icons-material';
 import { formatCurrency } from '@/utils/formatters';
 

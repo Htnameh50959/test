@@ -1,10 +1,36 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  Box, Typography, Grid, Paper, Stack, Button, IconButton, Switch, Chip, 
-  TextField, InputAdornment, Tab, Tabs, Dialog, DialogTitle, DialogContent, 
-  DialogActions, MenuItem as MuiMenuItem, Alert, CircularProgress,
-  Card, CardMedia, CardContent, Divider, Tooltip, Zoom, Fade
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Fade,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Menu,
+  MenuItem,
+  MenuItem as MuiMenuItem,
+  Paper,
+  Stack,
+  Switch,
+  Tab,
+  Tabs,
+  TextField,
+  Tooltip,
+  Typography,
+  Zoom,
 } from '@mui/material';
 import {
   Add, Edit, Delete, RestaurantMenu, Search, Fastfood, 

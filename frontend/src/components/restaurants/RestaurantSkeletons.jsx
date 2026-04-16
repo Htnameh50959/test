@@ -1,5 +1,14 @@
 import React from 'react';
-import { Box, Container, Grid, Skeleton, Stack, Divider, Paper } from '@mui/material';
+import {
+  Box,
+  Container,
+  Divider,
+  Grid,
+  Paper,
+  Skeleton,
+  Stack,
+  Tabs,
+} from '@mui/material';
 
 /**
  * RestaurantDetailSkeleton

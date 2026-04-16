@@ -1,12 +1,35 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { 
-  Box, Typography, Grid, Paper, Stack, Button, IconButton, 
-  Switch, FormControlLabel, CircularProgress, Chip, LinearProgress,
-  Divider as MuiDivider, List, ListItem, ListItemIcon, ListItemText,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  useTheme, alpha
+import {
+  Box,
+  Button,
+  Card,
+  Chip,
+  CircularProgress,
+  Divider,
+  Divider as MuiDivider,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  LinearProgress,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  Stack,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
+  alpha,
+  useTheme,
 } from '@mui/material';
 import {
   TrendingUp, Star, MonetizationOn, Timer, MoreHoriz, 

@@ -1,5 +1,12 @@
 import React from 'react';
-import { Card as MuiCard, CardContent, CardHeader, CardActions, CardMedia, Box } from '@mui/material';
+import {
+  Box,
+  Card as MuiCard,
+  CardActions,
+  CardContent,
+  CardHeader,
+  CardMedia,
+} from '@mui/material';
 
 /**
  * Custom Card Component

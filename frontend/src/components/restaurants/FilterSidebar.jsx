@@ -1,10 +1,28 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Box, Typography, Chip, Paper, Slider, FormControl,
-  FormLabel, RadioGroup, FormControlLabel, Radio,
-  Checkbox, FormGroup, Button, Divider, List,
-  ListItem, ListItemText, Stack, useTheme, Select, MenuItem
+  Box,
+  Button,
+  Checkbox,
+  Chip,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  List,
+  ListItem,
+  ListItemText,
+  MenuItem,
+  Paper,
+  Radio,
+  RadioGroup,
+  Rating,
+  Select,
+  Slider,
+  Stack,
+  Typography,
+  useTheme,
 } from '@mui/material';
 import {
   RestaurantMenu,

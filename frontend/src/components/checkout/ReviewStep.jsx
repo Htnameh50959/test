@@ -1,9 +1,22 @@
 // src/components/checkout/ReviewStep.jsx
 import React, { useState } from 'react';
 import {
-  Box, Typography, Button, Paper, Stack, Divider,
-  TextField, FormControlLabel, Checkbox, alpha,
-  useTheme, Grid, Avatar, CircularProgress
+  Avatar,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Divider,
+  FormControlLabel,
+  Grid,
+  List,
+  Paper,
+  Stack,
+  Step,
+  TextField,
+  Typography,
+  alpha,
+  useTheme,
 } from '@mui/material';
 import {
   Place as PlaceIcon,

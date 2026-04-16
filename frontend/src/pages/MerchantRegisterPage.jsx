@@ -2,10 +2,25 @@ import { useState, useMemo, useEffect } from 'react';
 import { useFormik } from 'formik';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Box, Button, TextField, Typography, Divider,
-  Alert, Grid, InputAdornment, CircularProgress,
-  FormControlLabel, Checkbox, Container, Paper,
-  IconButton, Stepper, Step, StepLabel, Stack
+  Alert,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Container,
+  Divider,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Paper,
+  Select,
+  Stack,
+  Step,
+  StepLabel,
+  Stepper,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { Store, Email, Phone, Lock, Person, Business, LocationOn, ArrowBack, MyLocation } from '@mui/icons-material';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';

@@ -4,7 +4,14 @@
 
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { IconButton, Badge, Tooltip, alpha, useTheme } from '@mui/material';
+import {
+  Badge,
+  Drawer,
+  IconButton,
+  Tooltip,
+  alpha,
+  useTheme,
+} from '@mui/material';
 import { ShoppingCart } from '@mui/icons-material';
 
 import {

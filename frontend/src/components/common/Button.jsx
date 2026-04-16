@@ -1,5 +1,8 @@
 import React from 'react';
-import { Button as MuiButton, CircularProgress } from '@mui/material';
+import {
+  Button as MuiButton,
+  CircularProgress,
+} from '@mui/material';
 
 /**
  * Custom Button Component

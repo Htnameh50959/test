@@ -1,9 +1,23 @@
 // src/components/checkout/PaymentStep.jsx
 import React from 'react';
 import {
-  Box, Typography, Button, Radio, RadioGroup,
-  FormControlLabel, Paper, Stack, Grid, TextField,
-  Switch, Slider, Divider, alpha, useTheme
+  Box,
+  Button,
+  Divider,
+  FormControlLabel,
+  Grid,
+  Paper,
+  Radio,
+  RadioGroup,
+  Select,
+  Slider,
+  Stack,
+  Step,
+  Switch,
+  TextField,
+  Typography,
+  alpha,
+  useTheme,
 } from '@mui/material';
 import {
   CreditCard as CardIcon,

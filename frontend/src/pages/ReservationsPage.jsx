@@ -3,10 +3,33 @@ import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Box, Container, Grid, Typography, Button, Paper, Stack, Divider,
-  TextField, MenuItem, Chip, Avatar, Rating, Stepper, Step, StepLabel,
-  Dialog, DialogContent, alpha, useTheme, CircularProgress, IconButton,
-  Fade, Zoom
+  Avatar,
+  Box,
+  Button,
+  Card,
+  Chip,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogContent,
+  Divider,
+  Fade,
+  Grid,
+  IconButton,
+  MenuItem,
+  Paper,
+  Rating,
+  Select,
+  Stack,
+  Step,
+  StepLabel,
+  Stepper,
+  Table,
+  TextField,
+  Typography,
+  Zoom,
+  alpha,
+  useTheme,
 } from '@mui/material';
 import {
   EventSeat, AccessTime, Group, CheckCircle, ArrowBack,

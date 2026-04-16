@@ -2,10 +2,21 @@ import { useEffect, useState, useMemo } from 'react';
 import { useFormik } from 'formik';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Box, Button, TextField, Typography, Divider,
-  Alert, Grid, InputAdornment, CircularProgress,
-  FormControlLabel, Checkbox, Container, Paper,
-  LinearProgress, IconButton
+  Alert,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Container,
+  Divider,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  InputAdornment,
+  LinearProgress,
+  Paper,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { Person, Email, Phone, Lock, Security, ArrowBack } from '@mui/icons-material';
 

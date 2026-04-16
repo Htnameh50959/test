@@ -1,10 +1,28 @@
 // src/components/reviews/ReviewSubmissionModal.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  Typography, Box, Rating, TextField, Chip, Button,
-  Stack, Divider, IconButton, Avatar, alpha, useTheme,
-  LinearProgress, Grid, Slider, Badge, Grow
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  Grow,
+  IconButton,
+  LinearProgress,
+  Paper,
+  Rating,
+  Slider,
+  Stack,
+  TextField,
+  Typography,
+  alpha,
+  useTheme,
 } from '@mui/material';
 import {
   Close as CloseIcon,

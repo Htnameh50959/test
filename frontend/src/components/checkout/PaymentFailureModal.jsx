@@ -1,8 +1,16 @@
 // src/components/checkout/PaymentFailureModal.jsx
 import React from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, Typography, Box, alpha, useTheme
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Step,
+  Typography,
+  alpha,
+  useTheme,
 } from '@mui/material';
 import { Error as ErrorIcon, Payment as PaymentIcon, Refresh as RetryIcon } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';

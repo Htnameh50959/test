@@ -1,8 +1,21 @@
 import { useState, useEffect } from 'react';
-import { 
-  Box, Typography, Paper, Grid, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, Avatar, Chip, Button, 
-  Stack, IconButton, CircularProgress 
+import {
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Grid,
+  IconButton,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
 } from '@mui/material';
 import { 
   TrendingUp, TrendingDown, People, Store, ShowChart, CheckCircle, 
