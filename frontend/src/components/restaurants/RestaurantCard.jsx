@@ -54,19 +54,17 @@ export const RestaurantCard = React.memo(({ restaurant }) => {
 
   return (
     <Card 
+      className="gpu-layer"
       sx={{ 
         height: '100%', 
         display: 'flex', 
         flexDirection: 'column',
         borderRadius: 4,
         overflow: 'hidden',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease',
         '&:hover': { 
           transform: 'translateY(-8px)',
-          boxShadow: `0 12px 30px ${alpha(theme.palette.common.black, 0.12)}`,
-          '& .MuiCardMedia-root': {
-            transform: 'scale(1.05)'
-          }
+          boxShadow: `0 20px 40px ${alpha(theme.palette.common.black, 0.15)}`,
         }
       }}
     >
@@ -80,7 +78,7 @@ export const RestaurantCard = React.memo(({ restaurant }) => {
           />
           
           {/* Overlay Badges */}
-          <Box sx={{ position: 'absolute', top: 12, left: 12, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+          <Box sx={{ position: 'absolute', top: 12, left: 12, display: 'flex', flexWrap: 'wrap', gap: 0.5, zIndex: 3 }}>
             {restaurant.isFeatured && (
               <Chip 
                 label="Featured" 
@@ -111,7 +109,7 @@ export const RestaurantCard = React.memo(({ restaurant }) => {
             )}
           </Box>
 
-          <Box sx={{ position: 'absolute', bottom: 12, right: 12 }}>
+          <Box sx={{ position: 'absolute', bottom: 12, right: 12, zIndex: 3 }}>
             <Chip 
               label={restaurant.isOpen ? 'Open Now' : 'Closed'} 
               size="small"

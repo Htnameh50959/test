@@ -6,4 +6,6 @@ export const restaurantsService = {
   getById:     (id)   => api.get('/restaurants/'+id),
   getReviews:  (id,p) => api.get('/restaurants/'+id+'/reviews', { params: p }),
   getAnalytics:(id)   => api.get('/restaurants/'+id+'/reviews/analytics'),
+  createBooking:(data) => api.post('/bookings', data),
+  getUserBookings:()   => api.get('/bookings/my-bookings'),
 };

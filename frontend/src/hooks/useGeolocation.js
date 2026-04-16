@@ -11,6 +11,7 @@ export const useGeolocation = ({ autoRequest = false } = {}) => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by your browser.');
       setLocation(DEFAULT_LOCATION);
+      setLoading(false);
       return;
     }
     setLoading(true);

@@ -69,12 +69,17 @@ export default function Header({ onMobileMenuOpen }) {
       position="sticky" 
       elevation={0} 
       sx={{ 
-        bgcolor: 'white', 
+        bgcolor: alpha('#FFFFFF', 0.8),
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)', // Safari support
         color: 'text.primary',
-        borderBottom: '1px solid #f0f0f0',
-        zIndex: theme.zIndex.drawer + 1
+        borderBottom: '1px solid',
+        borderColor: alpha(theme.palette.divider, 0.1),
+        zIndex: theme.zIndex.drawer + 1,
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
+
       <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 1, sm: 2, md: 4 } }}>
         {/* Left: Menu & Logo */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -108,55 +113,50 @@ export default function Header({ onMobileMenuOpen }) {
           </Typography>
 
           {!isMobile && (
-            <Stack direction="row" spacing={3} sx={{ ml: 2 }}>
-              {['Delivery', 'Reservations', 'Events'].map(item => (
+            <Stack direction="row" spacing={4} sx={{ ml: 4 }}>
+              {[
+                { label: 'Explore', path: '/' },
+                { label: 'Restaurants', path: '/search' },
+                { label: 'My Activity', path: '/orders' }
+              ].map(item => (
                 <Typography
-                  key={item}
+                  key={item.label}
                   variant="subtitle2"
                   component={Link}
-                  to={`/${item.toLowerCase()}`}
+                  to={item.path}
                   sx={{ 
                     textDecoration: 'none', 
-                    color: item === 'Delivery' ? 'primary.main' : 'text.secondary',
-                    fontWeight: 700,
-                    borderBottom: item === 'Delivery' ? '2px solid' : 'none',
-                    borderColor: 'primary.main',
-                    pb: 0.5,
-                    '&:hover': { color: 'primary.main' }
+                    color: location.pathname === item.path ? 'primary.main' : 'text.secondary',
+                    fontWeight: 800,
+                    letterSpacing: '0.02em',
+                    position: 'relative',
+                    transition: 'color 0.2s',
+                    '&:after': {
+                      content: '""',
+                      position: 'absolute',
+                      bottom: -4,
+                      left: 0,
+                      width: location.pathname === item.path ? '100%' : '0%',
+                      height: '2px',
+                      bgcolor: 'primary.main',
+                      transition: 'width 0.3s ease'
+                    },
+                    '&:hover': { 
+                      color: 'primary.main',
+                      '&:after': { width: '100%' }
+                    }
                   }}
                 >
-                  {item}
+                  {item.label}
                 </Typography>
               ))}
             </Stack>
           )}
         </Box>
 
-        {/* Center: Search Bar (Desktop/Tablet) */}
+        {/* Center: Empty for minimalist premium feel or secondary search */}
         {!isMobile && (
-          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', mr: 2 }}>
-            <Paper
-              elevation={0}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                bgcolor: alpha(theme.palette.secondary.main, 0.04),
-                borderRadius: 10,
-                px: 2,
-                py: 0.5,
-                border: '1px solid',
-                borderColor: 'divider',
-                cursor: 'pointer',
-                '&:hover': { bgcolor: alpha(theme.palette.secondary.main, 0.08) }
-              }}
-              onClick={handleLocationDetection}
-            >
-              <LocationOn sx={{ color: 'text.secondary', fontSize: 18, mr: 1 }} />
-              <Typography variant="body2" fontWeight={700}>
-                {location || 'Select Location'}
-              </Typography>
-            </Paper>
-          </Box>
+          <Box sx={{ flex: 1 }} />
         )}
 
         {/* Right: User actions */}

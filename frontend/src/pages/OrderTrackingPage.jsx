@@ -19,17 +19,21 @@ import { fetchOrderById, selectCurrentOrder, selectOrdersLoading } from '@/redux
 import { useOrderTracking } from '@/hooks/useOrderTracking';
 import { formatCurrency, formatTime } from '@/utils/formatters';
 
-// Fix Leaflet marker icons
+// Fix Vite breaking Leaflet's default marker icon asset paths
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-const DefaultIcon = L.icon({
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
   iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
   shadowUrl: markerShadow,
   iconSize: [25, 41],
-  iconAnchor: [12, 41]
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
 });
-L.Marker.prototype.options.icon = DefaultIcon;
 
 const CourierMarker = L.divIcon({
   html: '🛵',
@@ -82,7 +86,7 @@ const OrderTrackingPage = () => {
 
         <Grid container spacing={4}>
           {/* 1. Left Sidebar: Order Summary & Info */}
-          <Grid item xs={12} lg={3}>
+          <Grid size={{ xs: 12, lg: 3 }}>
             <Stack spacing={4}>
               {/* Order Summary Card */}
               <Paper sx={{ p: 4, borderRadius: 6, boxShadow: '0 8px 30px rgba(0,0,0,0.03)' }}>
@@ -120,7 +124,7 @@ const OrderTrackingPage = () => {
           </Grid>
 
           {/* 2. Middle: Live Map Discovery */}
-          <Grid item xs={12} lg={6}>
+          <Grid size={{ xs: 12, lg: 6 }}>
             <Stack spacing={4}>
               <Paper sx={{ 
                 height: 550, 
@@ -234,7 +238,7 @@ const OrderTrackingPage = () => {
           </Grid>
 
           {/* 3. Right Sidebar: Payment & Courier */}
-          <Grid item xs={12} lg={3}>
+          <Grid size={{ xs: 12, lg: 3 }}>
             <Stack spacing={4}>
               {/* Payment Overview */}
               <Paper sx={{ p: 4, borderRadius: 6 }}>
@@ -242,26 +246,29 @@ const OrderTrackingPage = () => {
                 <Stack spacing={2} sx={{ mb: 4 }}>
                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="body2" color="text.secondary">Subtotal</Typography>
-                      <Typography variant="body2" fontWeight={800}>{formatCurrency(order.totals?.subtotal || 60)}</Typography>
+                      <Typography variant="body2" fontWeight={800}>{formatCurrency(order.payment?.breakdown?.subtotal || 0)}</Typography>
                    </Box>
                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="body2" color="text.secondary">Delivery Fee</Typography>
-                      <Typography variant="body2" fontWeight={800}>₹4.50</Typography>
+                      <Typography variant="body2" fontWeight={800}>{formatCurrency(order.payment?.breakdown?.deliveryFee || 0)}</Typography>
                    </Box>
                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="body2" color="text.secondary">Service Fee</Typography>
-                      <Typography variant="body2" fontWeight={800}>₹2.20</Typography>
+                      <Typography variant="body2" fontWeight={800}>{formatCurrency(order.payment?.breakdown?.serviceFee || 0)}</Typography>
                    </Box>
-                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" color="success.main" fontWeight={700}>Loyalty Credit</Typography>
-                      <Typography variant="body2" color="success.main" fontWeight={800}>-₹5.00</Typography>
-                   </Box>
+                   {order.payment?.breakdown?.discount > 0 && (
+                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="success.main" fontWeight={700}>Discount</Typography>
+                        <Typography variant="body2" color="success.main" fontWeight={800}>-{formatCurrency(order.payment.breakdown.discount)}</Typography>
+                     </Box>
+                   )}
                 </Stack>
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                    <Typography variant="h5" fontWeight={900}>Total</Typography>
-                   <Typography variant="h5" fontWeight={900}>{formatCurrency(order.totals?.total || 61.7)}</Typography>
+                   <Typography variant="h5" fontWeight={900}>{formatCurrency(order.payment?.breakdown?.total || 0)}</Typography>
                 </Box>
+
               </Paper>
 
               {/* Rewards Status */}

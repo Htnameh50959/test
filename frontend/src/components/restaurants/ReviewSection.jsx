@@ -28,7 +28,7 @@ export const ReviewSection = ({ restaurantId, analytics }) => {
     <Box>
       <Grid container spacing={6}>
         {/* Analytics Left Sidebar */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Box sx={{ position: 'sticky', top: 120 }}>
             <Typography variant="h6" fontWeight={900} gutterBottom>Review Summary</Typography>
             
@@ -84,7 +84,7 @@ export const ReviewSection = ({ restaurantId, analytics }) => {
         </Grid>
 
         {/* Review Feed */}
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Typography variant="h6" fontWeight={900}>Customer Reviews</Typography>
             <Button startIcon={<FilterList />} size="small" sx={{ fontWeight: 700, color: 'text.secondary' }}>Sort by: Helpful</Button>

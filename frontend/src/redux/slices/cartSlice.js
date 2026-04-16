@@ -429,4 +429,12 @@ export const selectDeliveryAddress  = (s) => s.cart.deliveryAddress;
 export const selectAppliedCoupon    = (s) => s.cart.appliedCoupon;
 export const selectLoyaltyPoints    = (s) => s.cart.loyaltyPointsUsed;
 
+/** Centralized line total calculation for a single cart item */
+export const calculateItemPrice = (item) => {
+  const base = item.price || 0;
+  const mods = (item.modifiers ?? []).reduce((sum, m) => sum + (m.price || 0), 0);
+  return (base + mods) * (item.quantity || 1);
+};
+
+
 export default cartSlice.reducer;

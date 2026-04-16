@@ -28,11 +28,16 @@ const MerchantOrders      = lazy(() => import('@/pages/merchant/MerchantOrders')
 const MerchantBookings    = lazy(() => import('@/pages/merchant/MerchantBookings'));
 const MerchantMenu        = lazy(() => import('@/pages/merchant/MerchantMenu'));
 const MerchantAnalytics   = lazy(() => import('@/pages/merchant/MerchantAnalytics'));
+const MerchantProfile     = lazy(() => import('@/pages/merchant/MerchantProfile'));
 const AdminDashboard      = lazy(() => import('@/pages/admin/AdminDashboard'));
 const AdminUsers          = lazy(() => import('@/pages/admin/AdminUsers'));
 const AdminMerchants      = lazy(() => import('@/pages/admin/AdminMerchants'));
+const AdminPerformance    = lazy(() => import('@/pages/admin/AdminPerformance'));
+const ReservationsPage    = lazy(() => import('@/pages/ReservationsPage'));
 const NotFoundPage        = lazy(() => import('@/pages/NotFoundPage'));
+const CourierDashboard   = lazy(() => import('@/pages/courier/CourierDashboard'));
 import ErrorPage from '@/pages/ErrorPage';
+
 
 // ── Suspense wrapper ───────────────────────────────────────────────────────────
 const wrap = (Component) => (
@@ -52,6 +57,8 @@ const router = createBrowserRouter([
       { index: true,               element: wrap(HomePage) },
       { path: 'restaurants/:id',   element: wrap(RestaurantPage) },
       { path: 'search',            element: wrap(SearchPage) },
+      { path: 'reservations',      element: wrap(ReservationsPage) },
+      { path: 'reservations/:id',  element: wrap(ReservationsPage) },
 
       // Protected routes — require authentication
       {
@@ -78,6 +85,7 @@ const router = createBrowserRouter([
       { path: 'bookings', element: wrap(MerchantBookings) },
       { path: 'menu', element: wrap(MerchantMenu) },
       { path: 'analytics', element: wrap(MerchantAnalytics) },
+      { path: 'profile', element: wrap(MerchantProfile) },
     ],
   },
   {
@@ -89,8 +97,19 @@ const router = createBrowserRouter([
       { path: 'dashboard', element: wrap(AdminDashboard) },
       { path: 'users', element: wrap(AdminUsers) },
       { path: 'merchants', element: wrap(AdminMerchants) },
+      { path: 'performance', element: wrap(AdminPerformance) },
     ],
   },
+  {
+    // Courier Hub
+    path: '/courier',
+    element: <ProtectedRoute allowedRoles={['courier', 'admin']} />,
+    children: [
+      { index: true, element: <Navigate to="/courier/dashboard" replace /> },
+      { path: 'dashboard', element: wrap(CourierDashboard) },
+    ],
+  },
+
 
   {
     // Auth shell (centered card, no nav)

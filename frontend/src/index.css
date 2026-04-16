@@ -16,14 +16,34 @@
   --transition:      0.2s ease;
 }
 
-html { scroll-behavior: smooth; }
+html { 
+  scroll-behavior: smooth; 
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 body {
-  font-family: 'Inter', 'Roboto', sans-serif;
+  font-family: 'Inter', 'Outfit', sans-serif;
   background: var(--color-bg);
   color: var(--color-text);
   line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* NProgress Customization */
+#nprogress .bar {
+  background: #D85830 !important;
+  height: 3px !important;
+  box-shadow: 0 0 10px rgba(216, 88, 48, 0.5);
+}
+
+#nprogress .spinner-icon {
+  border-top-color: #D85830 !important;
+  border-left-color: #D85830 !important;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px #D85830, 0 0 5px #D85830 !important;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -31,10 +51,47 @@ a { color: inherit; text-decoration: none; }
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(45, 41, 38, 0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(45, 41, 38, 0.3); }
 
 /* Page loading animation used by PageLoader component */
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-.page-enter { animation: fadeIn 0.25s var(--transition) both; }
+.page-enter { animation: fadeIn 0.3s ease-out both; }
+
+/* Performance Utilities */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background: #f6f7f8;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.5) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+.gpu-layer {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+

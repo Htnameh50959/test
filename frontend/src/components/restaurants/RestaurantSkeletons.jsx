@@ -14,7 +14,7 @@ export const RestaurantDetailSkeleton = () => (
       {/* Header Info Paper */}
       <Paper sx={{ p: 4, borderRadius: 4, boxShadow: 4, mb: 4 }}>
         <Grid container spacing={4}>
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Skeleton width="60%" height={48} sx={{ mb: 1 }} />
             <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
               <Skeleton width={80} height={32} sx={{ borderRadius: 2 }} />
@@ -25,7 +25,7 @@ export const RestaurantDetailSkeleton = () => (
               <Skeleton width={100} height={24} />
             </Stack>
           </Grid>
-          <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: { md: 'flex-end' }, alignItems: 'center' }}>
+          <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', justifyContent: { md: 'flex-end' }, alignItems: 'center' }}>
             <Skeleton variant="circular" width={56} height={56} />
           </Grid>
         </Grid>
@@ -50,17 +50,17 @@ export const RestaurantDetailSkeleton = () => (
 
       {/* Content Skeleton */}
       <Grid container spacing={4}>
-        <Grid item xs={12} md={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <Stack spacing={2}>
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} height={40} width="100%" />
             ))}
           </Stack>
         </Grid>
-        <Grid item xs={12} md={9}>
+        <Grid size={{ xs: 12, md: 9 }}>
           <Grid container spacing={3}>
             {Array.from({ length: 6 }).map((_, i) => (
-              <Grid item xs={12} key={i}>
+              <Grid size={{ xs: 12 }} key={i}>
                 <Paper sx={{ p: 2, display: 'flex', gap: 2 }}>
                   <Box sx={{ flex: 1 }}>
                     <Skeleton width="40%" height={24} />
@@ -86,7 +86,7 @@ export const MenuCategorySkeleton = () => (
     <Skeleton width="30%" height={32} />
     <Grid container spacing={3}>
       {Array.from({ length: 4 }).map((_, i) => (
-        <Grid item xs={12} sm={6} key={i}>
+        <Grid size={{ xs: 12, sm: 6 }} key={i}>
           <Paper sx={{ p: 2, display: 'flex', gap: 2 }}>
             <Box sx={{ flex: 1 }}>
               <Skeleton width="60%" height={24} />

@@ -10,7 +10,8 @@ import {
   Settings as SettingsIcon,
   Logout as LogoutIcon,
   AdminPanelSettings as AdminIcon,
-  Notifications as NotificationsIcon
+  Notifications as NotificationsIcon,
+  Home as HomeIcon
 } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -92,11 +93,31 @@ export default function AdminLayout({ children }) {
           ))}
         </List>
 
-        <Divider sx={{ my: 4, bgcolor: 'rgba(255,255,255,0.1)' }} />
+        <Divider sx={{ my: 2, bgcolor: 'rgba(255,255,255,0.1)' }} />
 
         <List>
           <ListItem disablePadding sx={{ mb: 1 }}>
-            <ListItemButton sx={{ borderRadius: 3, py: 1.5, color: 'rgba(255,255,255,0.7)' }}>
+            <ListItemButton 
+              component={Link}
+              to="/"
+              sx={{ 
+                borderRadius: 3, 
+                py: 1.5, 
+                color: 'rgba(255,255,255,0.7)',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' }
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 45, color: 'inherit' }}><HomeIcon /></ListItemIcon>
+              <ListItemText primary="Back to Home" primaryTypographyProps={{ fontWeight: 800, fontSize: '0.9rem' }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding sx={{ mb: 1 }}>
+            <ListItemButton 
+              component={Link}
+              to="/admin/settings"
+              sx={{ borderRadius: 3, py: 1.5, color: 'rgba(255,255,255,0.7)' }}
+            >
               <ListItemIcon sx={{ minWidth: 45, color: 'inherit' }}><SettingsIcon /></ListItemIcon>
               <ListItemText primary="Settings" primaryTypographyProps={{ fontWeight: 800, fontSize: '0.9rem' }} />
             </ListItemButton>

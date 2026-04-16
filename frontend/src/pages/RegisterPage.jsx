@@ -162,7 +162,7 @@ export default function RegisterPage() {
 
         <Box component="form" onSubmit={formik.handleSubmit} noValidate>
           <Grid container spacing={2.5}>
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Full Name"
@@ -185,7 +185,7 @@ export default function RegisterPage() {
               />
             </Grid>
 
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Email Address"
@@ -214,7 +214,7 @@ export default function RegisterPage() {
               />
             </Grid>
 
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Phone Number"
@@ -238,7 +238,7 @@ export default function RegisterPage() {
               />
             </Grid>
 
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Password"
@@ -278,7 +278,7 @@ export default function RegisterPage() {
               )}
             </Grid>
 
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Confirm Password"
@@ -302,7 +302,7 @@ export default function RegisterPage() {
               />
             </Grid>
 
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
               <FormControlLabel
                 control={
                   <Checkbox

@@ -81,6 +81,30 @@ export const fetchRestaurantAnalytics = createAsyncThunk(
   }
 );
 
+export const createBooking = createAsyncThunk(
+  'restaurants/createBooking',
+  async (bookingData, { rejectWithValue }) => {
+    try {
+      const { data } = await restaurantsService.createBooking(bookingData);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to create reservation');
+    }
+  }
+);
+
+export const fetchUserBookings = createAsyncThunk(
+  'restaurants/fetchUserBookings',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await restaurantsService.getUserBookings();
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to load bookings');
+    }
+  }
+);
+
 // ── Slice ──────────────────────────────────────────────────────────────────────
 
 const restaurantsSlice = createSlice({
@@ -104,6 +128,7 @@ const restaurantsSlice = createSlice({
     sort: 'relevance',
     loading:             false,
     detailLoading:       false,
+    userBookings:        [],
     error:               null,
   },
 
@@ -191,7 +216,15 @@ const restaurantsSlice = createSlice({
           pages: payload.pagination?.pages ?? 1,
         };
       })
-      .addCase(fetchRestaurantReviews.rejected, (state, { payload }) => { state.loading = false; state.error = payload; });
+      .addCase(fetchRestaurantReviews.rejected, (state, { payload }) => { state.loading = false; state.error = payload; })
+      
+      // fetchUserBookings
+      .addCase(fetchUserBookings.pending, (state) => { state.loading = true; })
+      .addCase(fetchUserBookings.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.userBookings = Array.isArray(payload) ? payload : [];
+      })
+      .addCase(fetchUserBookings.rejected, (state, { payload }) => { state.loading = false; state.error = payload; });
   },
 });
 
@@ -214,6 +247,7 @@ export const selectCurrentRestaurant = (s) => s.restaurants.currentRestaurant;
 export const selectRestaurantMenuByCategory = (s) => s.restaurants.menuByCategory;
 export const selectRestaurantAnalytics = (s) => s.restaurants.analytics;
 export const selectRestaurantReviews = (s) => s.restaurants.reviews;
+export const selectUserBookings     = (s) => s.restaurants.userBookings;
 export const selectRestaurantsLoading = (s) => s.restaurants.loading;
 export const selectRestaurantDetailLoading = (s) => s.restaurants.detailLoading;
 export const selectRestaurantsError = (s) => s.restaurants.error;

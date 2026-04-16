@@ -103,10 +103,17 @@ export default function SearchPage() {
     dispatch(searchRestaurants(params));
   }, [dispatch, queryFromUrl, sort, localFilters, location, page]);
 
+  // ── Search Logic Orchestration ─────────────────────────────────────────────
+  
+  // Consolidate triggers into a single stable effect
   useEffect(() => {
-    if (!geoLoading) performSearch(1);
-    setPage(1);
-  }, [geoLoading, queryFromUrl, sort, localFilters, location?.lat, location?.lng]);
+    // Only fire if not waiting for geo-loading (or if we already have coordinates)
+    if (!geoLoading) {
+      performSearch(1);
+      setPage(1);
+    }
+  }, [queryFromUrl, sort, localFilters, geoLoading, location?.lat, location?.lng]);
+
 
   useEffect(() => { setLocalQuery(queryFromUrl); }, [queryFromUrl]);
 
@@ -416,8 +423,9 @@ export default function SearchPage() {
                   <Typography color="text.secondary" sx={{ mb: 3 }}>
                     {activeFilterCount > 0 ? 'Try removing some filters.' : 'No restaurants match your search.'}
                   </Typography>
-                  <Stack direction="row" spacing={2} justifyContent="center">
+                  <Stack direction="row" spacing={2} sx={{ justifyContent: 'center' }}>
                     {activeFilterCount > 0 && (
+
                       <Button variant="outlined" onClick={resetFilters} sx={{ fontWeight: 800, borderRadius: 3 }}>
                         Clear Filters
                       </Button>

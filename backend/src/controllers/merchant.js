@@ -53,8 +53,13 @@ const broadcast = (room, event, payload) => {
  * Merchants with multiple restaurants can pass ?restaurantId= to scope the request.
  */
 const resolveRestaurant = async (req, next, opts = {}) => {
-  const { requireOwnership = true, select = '' } = opts;
-  const restaurantId = req.query.restaurantId || req.body.restaurantId;
+  let { requireOwnership = true, select = '' } = opts;
+  
+  if (requireOwnership && select && typeof select === 'string' && !select.includes('merchantId')) {
+    select += ' merchantId';
+  }
+
+  const restaurantId = req.query.restaurantId || req.body?.restaurantId;
 
   let restaurant;
 
@@ -65,9 +70,9 @@ const resolveRestaurant = async (req, next, opts = {}) => {
     }
     restaurant = await Restaurant.findById(restaurantId).select(select || undefined);
   } else {
-    // Default to the first active restaurant owned by this merchant.
+    // Default to the first restaurant owned by this merchant.
     restaurant = await Restaurant.findOne(
-      { merchantId: req.user._id, isActive: true },
+      { merchantId: req.user._id },
       select || undefined
     );
   }
@@ -77,7 +82,7 @@ const resolveRestaurant = async (req, next, opts = {}) => {
     return null;
   }
 
-  if (requireOwnership && restaurant.merchantId.toString() !== req.user._id.toString()
+  if (requireOwnership && (!restaurant.merchantId || restaurant.merchantId.toString() !== req.user._id.toString())
       && req.user.role !== 'admin') {
     next(new ErrorResponse('You do not own this restaurant.', 403));
     return null;
@@ -176,9 +181,10 @@ exports.getDashboard = async (req, res, next) => {
       success: true,
       data: {
         restaurant: {
-          id:     merchant._id,
-          name:   merchant.name,
-          isOpen: merchant.isOpen,
+          id:                    merchant._id,
+          name:                  merchant.name,
+          isOpen:                merchant.isOpen,
+          isReservationsEnabled: merchant.isReservationsEnabled,
         },
         today: {
           orders:        todayData.totalOrders,
@@ -967,11 +973,35 @@ exports.getReviewSentiment = async (req, res, next) => {
 // ===========================================================================
 exports.getBookings = async (req, res, next) => {
   try {
-    const restaurant = await resolveRestaurant(req, next, { select: '_id' });
-    if (!restaurant) return;
+    // We want to see bookings for ALL restaurants owned by this merchant
+    const ownedRestaurants = await Restaurant.find({ merchantId: req.user._id }).select('_id');
+    const restaurantIds = ownedRestaurants.map(r => r._id);
+
+    if (restaurantIds.length === 0) {
+      return res.status(200).json({
+        success: true,
+        count: 0,
+        data: []
+      });
+    }
 
     const { status, date } = req.query;
-    const filter = { restaurant: restaurant._id };
+    // Allow filtering by a specific restaurant if provided, otherwise all owned.
+    const targetRestaurantId = req.query.restaurantId;
+    const filter = {};
+
+    if (targetRestaurantId) {
+      // Security: Ensure they own the requested restaurantId
+      if (!restaurantIds.map(id => id.toString()).includes(targetRestaurantId.toString())) {
+        return res.status(403).json({
+          success: false,
+          message: 'You do not have permission to view bookings for this restaurant.'
+        });
+      }
+      filter.restaurant = targetRestaurantId;
+    } else {
+      filter.restaurant = { $in: restaurantIds };
+    }
 
     if (status) filter.status = status;
     if (date) {
@@ -991,6 +1021,7 @@ exports.getBookings = async (req, res, next) => {
       count:   bookings.length,
       data:    bookings
     });
+
 
   } catch (err) {
     next(err);
@@ -1028,6 +1059,47 @@ exports.updateBookingStatus = async (req, res, next) => {
       success: true,
       message: `Booking status updated to ${status}.`,
       data:    booking
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ===========================================================================
+// 16. UPDATE RESTAURANT SETTINGS
+// PATCH /api/v1/merchant/settings
+// Body: { isReservationsEnabled, isOpen, etc. }
+// ===========================================================================
+exports.updateSettings = async (req, res, next) => {
+  try {
+    const restaurant = await resolveRestaurant(req, next);
+    if (!restaurant) return;
+
+    // Filter allowed settings to update
+    const allowedUpdates = ['isReservationsEnabled', 'isOpen'];
+    const updates = {};
+    
+    Object.keys(req.body).forEach(key => {
+      if (allowedUpdates.includes(key)) {
+        updates[key] = req.body[key];
+      }
+    });
+
+    if (Object.keys(updates).length === 0) {
+      return next(new ErrorResponse('No valid settings provided for update.', 400));
+    }
+
+    const updatedRestaurant = await Restaurant.findByIdAndUpdate(
+      restaurant._id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Restaurant settings updated successfully.',
+      data: updatedRestaurant
     });
 
   } catch (err) {

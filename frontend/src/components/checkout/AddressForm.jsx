@@ -11,7 +11,7 @@ import * as Yup from 'yup';
 
 const AddressForm = ({ open, onClose }) => {
   const formik = useFormik({
-    initialState: {
+    initialValues: {
       label: '',
       street: '',
       apartment: '',
@@ -29,10 +29,10 @@ const AddressForm = ({ open, onClose }) => {
       zip: Yup.string().required('ZIP code is required').matches(/^[0-9]{5,6}$/, 'Enter a valid ZIP code'),
     }),
     onSubmit: (values) => {
-      console.log('New Address:', values);
-      // In a real app, dispatch an action to save the address
+      // Logic to save address...
       onClose();
     },
+
   });
 
   return (
@@ -45,7 +45,7 @@ const AddressForm = ({ open, onClose }) => {
       <DialogContent sx={{ p: 3, pt: 1 }}>
         <form onSubmit={formik.handleSubmit}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Address Label (e.g. Home, Office)"
@@ -57,7 +57,7 @@ const AddressForm = ({ open, onClose }) => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Street Address"
@@ -69,7 +69,7 @@ const AddressForm = ({ open, onClose }) => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Apartment, Suite, Unit (Optional)"
@@ -79,7 +79,7 @@ const AddressForm = ({ open, onClose }) => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="City"
@@ -91,7 +91,7 @@ const AddressForm = ({ open, onClose }) => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={6} sm={3}>
+            <Grid size={{ xs: 6, sm: 3 }}>
               <TextField
                 fullWidth
                 label="State"
@@ -103,7 +103,7 @@ const AddressForm = ({ open, onClose }) => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={6} sm={3}>
+            <Grid size={{ xs: 6, sm: 3 }}>
               <TextField
                 fullWidth
                 label="ZIP Code"
@@ -115,7 +115,7 @@ const AddressForm = ({ open, onClose }) => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Delivery Instructions"
@@ -128,7 +128,7 @@ const AddressForm = ({ open, onClose }) => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <FormControlLabel
                 control={
                   <Checkbox 

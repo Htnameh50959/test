@@ -44,7 +44,9 @@ import {
   closeCartDrawer,
   removeItem,
   updateQuantity,
+  calculateItemPrice
 } from '@/redux/slices/cartSlice';
+
 import { formatCurrency } from '@/utils/formatters';
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
@@ -99,8 +101,8 @@ function QuantityControl({ id, quantity, onIncrement, onDecrement }) {
 /** Single cart item row */
 function CartItemRow({ item, onRemove, onIncrement, onDecrement }) {
   const theme = useTheme();
-  const unitPrice = (item.price || 0) + (item.modifiers ?? []).reduce((s, m) => s + (m.price || 0), 0);
-  const lineTotal = unitPrice * (item.quantity || 1);
+  const lineTotal = calculateItemPrice(item);
+
 
   return (
     <Box
@@ -444,8 +446,8 @@ export default function CartDrawer() {
       {isLoading ? (
         // Loading Skeleton
         <Box sx={{ p: 2.5, flex: 1 }}>
-          {[1, 2, 3].map((i) => (
-            <Box key={i} sx={{ display: 'flex', gap: 1.5, mb: 2.5 }}>
+          {[1, 2, 3, 4].map((i) => (
+            <Box key={`skeleton-item-${i}`} sx={{ display: 'flex', gap: 1.5, mb: 2.5 }}>
               <Skeleton variant="rounded" width={52} height={52} />
               <Box flex={1}>
                 <Skeleton width="70%" height={18} />
@@ -455,6 +457,7 @@ export default function CartDrawer() {
             </Box>
           ))}
         </Box>
+
       ) : isEmpty ? (
         <EmptyCart onBrowse={handleBrowse} />
       ) : (

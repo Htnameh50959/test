@@ -47,7 +47,7 @@ const CheckoutPage = () => {
         </Typography>
 
         <Grid container spacing={4}>
-          <Grid item xs={12} lg={8}>
+          <Grid size={{ xs: 12, lg: 8 }}>
             {/* Stepper Header */}
             <Paper elevation={0} sx={{ p: 4, mb: 4, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
               <Stepper activeStep={activeStep} alternativeLabel={!isMobile} orientation={isMobile ? 'vertical' : 'horizontal'}>
@@ -76,7 +76,7 @@ const CheckoutPage = () => {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} lg={4}>
+          <Grid size={{ xs: 12, lg: 4 }}>
             <CheckoutSummary />
           </Grid>
         </Grid>

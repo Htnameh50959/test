@@ -164,11 +164,13 @@ const autoCompleteDeliveredOrders = async () => {
                 metadata: { auto: true }
             });
             
-            // Trigger review prompt
-            await sendReviewPrompt(order.customerId, order._id).catch(e => console.error(e));
             
-            console.log(`[Orders] Auto-completed order ${order._id}`);
+            // Trigger review prompt
+            await sendReviewPrompt(order.customerId, order._id).catch(e => {
+                // Silently fail review prompts in background
+            });
         }
+
     } catch (error) {
         console.error('Auto-complete delivered orders error:', error);
     }
@@ -378,9 +380,8 @@ exports.createOrder = async (req, res, next) => {
     });
 
     // ── 9. Clear the user's cart (fire-and-forget) ────────────────────────────
-    Cart.deleteOne({ userId: req.user._id }).catch((err) =>
-      console.error(`[Orders] Cart clear failed: ${err.message}`)
-    );
+    Cart.deleteOne({ userId: req.user._id }).catch((err) => {});
+
 
     // ── 10. Broadcast new-order event to the merchant ─────────────────────────
     broadcastOrderEvent(restaurantId, 'newOrder', {
@@ -603,7 +604,8 @@ exports.updateStatus = async (req, res, next) => {
     sendPushNotification(order.customerId, {
         title: 'Order Update',
         body: `Your order is now ${formatStatus(targetStatus)}`
-    }).catch(err => console.error('Push notification failed:', err));
+    }).catch(err => {});
+
 
     res.status(200).json({
       success: true,

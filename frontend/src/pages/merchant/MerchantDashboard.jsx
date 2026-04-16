@@ -1,47 +1,68 @@
-import React from 'react';
-import { Box, Grid, Paper, Typography, Stack, LinearProgress, Avatar, Chip, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from '@mui/material';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { 
+  Box, Typography, Grid, Paper, Stack, Button, IconButton, 
+  Switch, FormControlLabel, CircularProgress, Chip, LinearProgress,
+  Divider as MuiDivider, List, ListItem, ListItemIcon, ListItemText,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  useTheme, alpha
+} from '@mui/material';
 import {
-  TrendingUp, Star, MonetizationOn, Timer, MoreHoriz, Notifications as NotificationsIcon
+  TrendingUp, Star, MonetizationOn, Timer, MoreHoriz, 
+  Notifications as NotificationsIcon, Restaurant as RestaurantIcon,
+  Settings, EventSeat, Info
 } from '@mui/icons-material';
+
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
 import MerchantLayout from '@/components/layout/MerchantLayout';
-
-const STATS = [
-  { label: 'Active Orders', value: '0', trend: '0%', icon: <TrendingUp />, color: '#D85830' },
-  { label: 'Today Rating', value: '0.0', trend: '0', icon: <Star />, color: '#4D7C5E' },
-  { label: 'Total Revenue', value: '₹0', trend: '0%', icon: <MonetizationOn />, color: '#2D2926' },
-  { label: 'Avg Prep Time', value: '0m', trend: '0m', icon: <Timer />, color: '#5A3E2B' },
-];
+import { 
+  fetchMerchantDashboard, 
+  updateRestaurantSettings 
+} from '@/redux/slices/merchantSlice';
 
 const REVENUE_DATA = [
-  { name: '8am', value: 0 },
-  { name: '10am', value: 0 },
-  { name: '12pm', value: 0 },
-  { name: '2pm', value: 0 },
-  { name: '4pm', value: 0 },
-  { name: '6pm', value: 0 },
-  { name: '8pm', value: 0 },
+  { name: 'Mon', value: 4000 },
+  { name: 'Tue', value: 3000 },
+  { name: 'Wed', value: 5000 },
+  { name: 'Thu', value: 4500 },
+  { name: 'Fri', value: 6000 },
+  { name: 'Sat', value: 8000 },
+  { name: 'Sun', value: 7000 },
 ];
 
-const ORDER_DISTRIBUTION = [
-  { name: 'Delivery', value: 0, color: '#D85830' },
-  { name: 'Dine-in', value: 0, color: '#2D2926' },
-  { name: 'Pick-up', value: 0, color: '#4D7C5E' },
-];
-
-const INCOMING_ORDERS = [];
-
-import { Link } from 'react-router-dom';
 
 export default function MerchantDashboard() {
   const theme = useTheme();
+  const dispatch = useDispatch();
   
+  const { data: dashboardData, loading, error } = useSelector((state) => state.merchant.dashboard);
+  const restaurant = dashboardData?.restaurant;
+  
+  useEffect(() => {
+    dispatch(fetchMerchantDashboard());
+  }, [dispatch]);
+
   // Logic: In a real app, we'd check if the merchant has a menu or orders
-  // For now, we'll implement a 'Fresh Start' view for new registrations
-  const isNewMerchant = true; // Simulating a fresh registration for the user's test
+  // If the dashboard returns null or no restaurant, show the welcome screen.
+  const isNewMerchant = !loading && !dashboardData?.restaurant && !error;
+
+  const handleToggleReservations = (e) => {
+    dispatch(updateRestaurantSettings({ isReservationsEnabled: e.target.checked }));
+  };
+
+  if (loading && !dashboardData) {
+    return (
+      <MerchantLayout>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+          <CircularProgress color="primary" />
+        </Box>
+      </MerchantLayout>
+    );
+  }
 
   if (isNewMerchant) {
     return (
@@ -74,7 +95,7 @@ export default function MerchantDashboard() {
                  { title: 'Business Profile', desc: 'Set your hours and location.', icon: '📍', action: '/merchant/dashboard' },
                  { title: 'Verification', desc: 'Upload documents for Admin approval.', icon: '📜', action: '#' },
                ].map((step, i) => (
-                 <Grid item xs={12} md={4} key={i}>
+                 <Grid size={{ xs: 12, md: 4 }} key={i}>
                     <Paper 
                       elevation={0} 
                       component={Link}
@@ -102,10 +123,46 @@ export default function MerchantDashboard() {
   return (
     <MerchantLayout>
       <Box sx={{ pb: 8 }}>
-        {/* 1. Stats Row — Optimized to not stretch with the next row */}
+        {/* 1. Header & Quick Controls */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
+          <Box>
+            <Typography variant="h4" fontWeight={900} sx={{ letterSpacing: -1, mb: 0.5 }}>
+              Dashboard Overview
+            </Typography>
+            <Typography variant="body2" color="text.secondary" fontWeight={600}>
+              Welcome back, {restaurant?.name}. Here's what's happening today.
+            </Typography>
+          </Box>
+        <Stack direction="row" spacing={2}>
+            <Button 
+              variant="outlined" 
+              startIcon={<Settings />}
+              component={Link}
+              to="/merchant/profile" 
+              sx={{ borderRadius: 3, fontWeight: 700, borderColor: 'divider', color: 'text.primary' }}
+            >
+              Edit Profile
+            </Button>
+            <Button 
+              variant="contained" 
+              startIcon={<NotificationsIcon />}
+              onClick={() => alert('No new notifications')}
+              sx={{ borderRadius: 3, fontWeight: 900, boxShadow: '0 8px 20px rgba(0,0,0,0.1)' }}
+            >
+              Notifications
+            </Button>
+          </Stack>
+        </Box>
+
+        {/* 2. Stats Row */}
         <Grid container spacing={4} sx={{ mb: 4 }}>
-          {STATS.map((stat) => (
-            <Grid item xs={12} sm={6} lg={3} key={stat.label}>
+          {[
+            { label: 'Active Orders', value: dashboardData?.today?.pendingCount || 0, trend: 'Live', icon: <TrendingUp />, color: '#D85830' },
+            { label: 'Avg Rating', value: dashboardData?.today?.avgRating || '0.0', trend: `${dashboardData?.today?.totalReviews || 0} reviews`, icon: <Star />, color: '#4D7C5E' },
+            { label: 'Today Revenue', value: `₹${dashboardData?.today?.revenue || 0}`, trend: 'Daily', icon: <MonetizationOn />, color: '#2D2926' },
+            { label: 'Today Orders', value: dashboardData?.today?.orders || 0, trend: 'Daily', icon: <RestaurantIcon />, color: '#5A3E2B' },
+          ].map((stat) => (
+            <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={stat.label}>
               <Paper elevation={0} sx={{ p: 3, borderRadius: 4, display: 'flex', alignItems: 'center', gap: 2, border: '1px solid rgba(0,0,0,0.06)', bgcolor: 'white' }}>
                  <Box sx={{ p: 1.2, bgcolor: stat.color, color: 'white', borderRadius: 3, display: 'flex' }}>
                     {stat.icon}
@@ -114,7 +171,7 @@ export default function MerchantDashboard() {
                     <Typography variant="caption" fontWeight={900} color="text.secondary" sx={{ letterSpacing: 0.5, fontSize: '0.65rem' }}>{stat.label.toUpperCase()}</Typography>
                     <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
                        <Typography variant="h5" fontWeight={900} sx={{ fontSize: '1.4rem' }}>{stat.value}</Typography>
-                       <Typography variant="caption" fontWeight={900} color={stat.trend.startsWith('+') ? 'success.main' : 'error.main'} sx={{ fontSize: '0.7rem' }}>
+                       <Typography variant="caption" fontWeight={900} color="text.secondary" sx={{ fontSize: '0.7rem' }}>
                           {stat.trend}
                        </Typography>
                     </Box>
@@ -124,16 +181,59 @@ export default function MerchantDashboard() {
           ))}
         </Grid>
 
-        {/* 2. Charts Row */}
-        <Grid container spacing={4} alignItems="stretch">
-          <Grid item xs={12} lg={8}>
-            <Paper elevation={0} sx={{ p: 4, borderRadius: 5, border: '1px solid rgba(0,0,0,0.06)', height: '100%', minHeight: 400, bgcolor: 'white' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 6 }}>
-                 <Typography variant="h6" fontWeight={900}>Revenue Stream</Typography>
-                 <Button size="small" sx={{ fontWeight: 900, borderRadius: 2 }}>DAILY VIEW →</Button>
-              </Box>
-              <Box sx={{ height: 300, width: '100%' }}>
-                 <ResponsiveContainer width="100%" height="100%">
+        {/* 3. Main Content Grid */}
+        <Grid container spacing={4}>
+          {/* Left Column: Orders & Analytics */}
+          <Grid size={{ xs: 12, lg: 8 }}>
+            <Stack spacing={4}>
+              {/* Incoming Orders */}
+              <Paper elevation={0} sx={{ p: 4, borderRadius: 5, border: '1px solid rgba(0,0,0,0.06)', bgcolor: 'white' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                  <Typography variant="h6" fontWeight={900}>Pending Orders</Typography>
+                  <Button component={Link} to="/merchant/orders" size="small" sx={{ fontWeight: 800 }}>VIEW ALL →</Button>
+                </Box>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ color: 'text.secondary', fontWeight: 900, fontSize: '0.7rem' }}>ID</TableCell>
+                        <TableCell sx={{ color: 'text.secondary', fontWeight: 900, fontSize: '0.7rem' }}>CUSTOMER</TableCell>
+                        <TableCell sx={{ color: 'text.secondary', fontWeight: 900, fontSize: '0.7rem' }}>WAIT TIME</TableCell>
+                        <TableCell sx={{ color: 'text.secondary', fontWeight: 900, fontSize: '0.7rem' }}>TOTAL</TableCell>
+                        <TableCell align="right" sx={{ color: 'text.secondary', fontWeight: 900, fontSize: '0.7rem' }}>ACTION</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {dashboardData?.pendingOrders?.length > 0 ? (
+                        dashboardData.pendingOrders.map((order) => (
+                          <TableRow key={order._id} hover sx={{ '&:last-child td': { border: 0 } }}>
+                            <TableCell sx={{ fontWeight: 900 }}>#{order._id.slice(-5).toUpperCase()}</TableCell>
+                            <TableCell sx={{ fontWeight: 800 }}>
+                              {order.customerId?.profile?.firstName} {order.customerId?.profile?.lastName}
+                            </TableCell>
+                            <TableCell>
+                              <Chip label={`${order.minutesElapsed}m ago`} size="small" sx={{ fontWeight: 800, bgcolor: order.minutesElapsed > 15 ? 'error.light' : 'success.light', color: 'white' }} />
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 900 }}>₹{order.payment?.breakdown?.total}</TableCell>
+                            <TableCell align="right">
+                              <Button variant="contained" component={Link} to="/merchant/orders" size="small" sx={{ borderRadius: 2, fontWeight: 900, boxShadow: 'none' }}>Handle</Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>No pending orders at the moment.</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+
+              <Paper elevation={0} sx={{ p: 4, borderRadius: 5, border: '1px solid rgba(0,0,0,0.06)', bgcolor: 'white' }}>
+                <Typography variant="h6" fontWeight={900} sx={{ mb: 4 }}>Revenue Stream</Typography>
+                <Box sx={{ height: 260, width: '100%' }}>
+                  <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={REVENUE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <defs>
                         <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
@@ -147,106 +247,81 @@ export default function MerchantDashboard() {
                       <Tooltip contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 8px 32px rgba(0,0,0,0.1)', fontWeight: 800 }} />
                       <Area type="monotone" dataKey="value" stroke="#D85830" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
                     </AreaChart>
-                 </ResponsiveContainer>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} lg={4}>
-            <Paper elevation={0} sx={{ p: 4, borderRadius: 5, height: '100%', bgcolor: '#2D2926', color: 'white', display: 'flex', flexDirection: 'column', minHeight: 400 }}>
-               <Typography variant="h6" fontWeight={900} sx={{ mb: 4 }}>Customer Sentiment</Typography>
-               <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.2, justifyContent: 'center', mb: 3 }}>
-                    <Chip size="small" label="Authentic" sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 800 }} />
-                    <Chip size="small" label="Great Vibe" sx={{ bgcolor: '#D85830', color: 'white', fontWeight: 900, transform: 'scale(1.1)' }} />
-                    <Chip size="small" label="Slow Service" sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 800 }} />
-                    <Chip size="small" label="Flavorful" sx={{ bgcolor: '#4D7C5E', color: 'white', fontWeight: 900 }} />
-                    <Chip size="small" label="Premium" sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 800 }} />
-                 </Box>
-                 <Box sx={{ mt: 'auto' }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 900, letterSpacing: 1 }}>SENTIMENT INDEX</Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
-                       <Typography variant="h4" fontWeight={900}>88%</Typography>
-                       <LinearProgress variant="determinate" value={88} sx={{ flex: 1, height: 8, borderRadius: 4, bgcolor: 'rgba(255,255,255,0.1)', '& .MuiLinearProgress-bar': { bgcolor: '#4D7C5E', borderRadius: 4 } }} />
-                    </Box>
-                 </Box>
-               </Box>
-            </Paper>
-          </Grid>
-
-          {/* 3. Orders & Distribution Row */}
-          <Grid item xs={12} lg={8}>
-             <Paper elevation={0} sx={{ p: 4, borderRadius: 5, border: '1px solid rgba(0,0,0,0.06)', height: '100%', bgcolor: 'white' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                   <Typography variant="h6" fontWeight={900}>Incoming Orders</Typography>
-                   <Stack direction="row" spacing={1}>
-                      <Button variant="text" size="small" sx={{ fontWeight: 800, color: 'text.secondary' }}>Dine-in</Button>
-                      <Button variant="contained" size="small" sx={{ borderRadius: 2, fontWeight: 900, px: 3, boxShadow: 'none' }}>Delivery</Button>
-                   </Stack>
+                  </ResponsiveContainer>
                 </Box>
-                <TableContainer>
-                   <Table size="small">
-                      <TableHead>
-                         <TableRow>
-                            <TableCell sx={{ color: 'text.secondary', fontWeight: 900, fontSize: '0.7rem' }}>ID</TableCell>
-                            <TableCell sx={{ color: 'text.secondary', fontWeight: 900, fontSize: '0.7rem' }}>CUSTOMER</TableCell>
-                            <TableCell sx={{ color: 'text.secondary', fontWeight: 900, fontSize: '0.7rem' }}>ITEMS</TableCell>
-                            <TableCell sx={{ color: 'text.secondary', fontWeight: 900, fontSize: '0.7rem' }}>TOTAL</TableCell>
-                            <TableCell align="right" sx={{ color: 'text.secondary', fontWeight: 900, fontSize: '0.7rem' }}>ACTION</TableCell>
-                         </TableRow>
-                      </TableHead>
-                      <TableBody>
-                         {INCOMING_ORDERS.map((order) => (
-                            <TableRow key={order.id} hover sx={{ '&:last-child td': { border: 0 } }}>
-                               <TableCell sx={{ fontWeight: 900 }}>#{order.id}</TableCell>
-                               <TableCell sx={{ fontWeight: 800 }}>{order.customer}</TableCell>
-                               <TableCell sx={{ fontWeight: 500, color: 'text.secondary', maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.items}</TableCell>
-                               <TableCell sx={{ fontWeight: 900 }}>{order.total}</TableCell>
-                               <TableCell align="right">
-                                  <Stack direction="row" spacing={1} justifyContent="flex-end">
-                                     <Button variant="contained" color="success" size="small" sx={{ borderRadius: 2, fontWeight: 900, boxShadow: 'none' }}>Accept</Button>
-                                     <Button variant="outlined" color="error" size="small" sx={{ borderRadius: 2, fontWeight: 900 }}>Reject</Button>
-                                  </Stack>
-                               </TableCell>
-                            </TableRow>
-                         ))}
-                      </TableBody>
-                   </Table>
-                </TableContainer>
-             </Paper>
+              </Paper>
+            </Stack>
           </Grid>
 
-          <Grid item xs={12} lg={4}>
-             <Paper elevation={0} sx={{ p: 4, borderRadius: 5, border: '1px solid rgba(0,0,0,0.06)', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'white' }}>
-                <Typography variant="h6" fontWeight={900} sx={{ mb: 4 }}>Order Distribution</Typography>
-                <Box sx={{ height: 220, position: 'relative', mb: 3 }}>
-                   <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                         <Pie data={ORDER_DISTRIBUTION} innerRadius={65} outerRadius={90} paddingAngle={10} dataKey="value" stroke="none">
-                            {ORDER_DISTRIBUTION.map((entry, index) => (
-                               <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                         </Pie>
-                         <Tooltip />
-                      </PieChart>
-                   </ResponsiveContainer>
-                   <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                      <Typography variant="h4" fontWeight={900}>0</Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={900}>TOTAL</Typography>
+          {/* Right Column: Settings & Distribution */}
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <Stack spacing={4}>
+              {/* Business Settings Control Center */}
+              <Paper elevation={0} sx={{ p: 4, borderRadius: 5, border: '1px solid rgba(0,0,0,0.06)', bgcolor: 'white' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
+                  <Box sx={{ p: 1, bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main', borderRadius: 2, display: 'flex' }}>
+                    <Settings fontSize="small" />
+                  </Box>
+                  <Typography variant="h6" fontWeight={900}>Business Settings</Typography>
+                </Box>
+
+                <List disablePadding>
+                  <ListItem disableGutters>
+                    <ListItemIcon sx={{ minWidth: 40 }}><EventSeat color="action" /></ListItemIcon>
+                    <ListItemText 
+                      primary={<Typography fontWeight={800} variant="body2">Dine-In Reservations</Typography>} 
+                      secondary={<Typography variant="caption" color="text.secondary">Allow guests to book tables online</Typography>}
+                    />
+                    <Switch 
+                      edge="end" 
+                      checked={restaurant?.isReservationsEnabled || false} 
+                      onChange={handleToggleReservations}
+                      color="primary"
+                    />
+                  </ListItem>
+                  
+                  <MuiDivider sx={{ my: 1.5, opacity: 0.6 }} />
+
+                  <ListItem disableGutters>
+                    <ListItemIcon sx={{ minWidth: 40 }}><RestaurantIcon color="action" /></ListItemIcon>
+                    <ListItemText 
+                      primary={<Typography fontWeight={800} variant="body2">Restaurant Status</Typography>} 
+                      secondary={<Typography variant="caption" color={restaurant?.isOpen ? 'success.main' : 'error.main'}>{restaurant?.isOpen ? 'Currently Open' : 'Currently Closed'}</Typography>}
+                    />
+                    <Switch 
+                      edge="end" 
+                      checked={restaurant?.isOpen || false} 
+                      disabled // For now, prevent manual toggle here if it should be automated
+                      color="success"
+                    />
+                  </ListItem>
+                </List>
+
+                <Box sx={{ mt: 3, p: 2, bgcolor: alpha(theme.palette.info.main, 0.05), borderRadius: 3, display: 'flex', gap: 2, border: '1px solid', borderColor: alpha(theme.palette.info.main, 0.1) }}>
+                  <Info sx={{ color: 'info.main', fontSize: 20, mt: 0.2 }} />
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                    Turning off reservations will hide the booking option from your profile immediately.
+                  </Typography>
+                </Box>
+              </Paper>
+
+              {/* Sentiment Card */}
+              <Paper elevation={0} sx={{ p: 4, borderRadius: 5, bgcolor: '#2D2926', color: 'white', display: 'flex', flexDirection: 'column' }}>
+                <Typography variant="h6" fontWeight={900} sx={{ mb: 4 }}>Customer Sentiment</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.2, justifyContent: 'center', mb: 3 }}>
+                   <Chip size="small" label="Authentic" sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 800 }} />
+                   <Chip size="small" label="Great Vibe" sx={{ bgcolor: '#D85830', color: 'white', fontWeight: 900, transform: 'scale(1.1)' }} />
+                   <Chip size="small" label="Flavorful" sx={{ bgcolor: '#4D7C5E', color: 'white', fontWeight: 900 }} />
+                </Box>
+                <Box sx={{ mt: 'auto' }}>
+                   <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 900, letterSpacing: 1 }}>SENTIMENT INDEX</Typography>
+                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+                      <Typography variant="h4" fontWeight={900}>{dashboardData?.today?.avgRating ? Math.round((dashboardData.today.avgRating/5)*100) : 0}%</Typography>
+                      <LinearProgress variant="determinate" value={dashboardData?.today?.avgRating ? (dashboardData.today.avgRating/5)*100 : 0} sx={{ flex: 1, height: 8, borderRadius: 4, bgcolor: 'rgba(255,255,255,0.1)', '& .MuiLinearProgress-bar': { bgcolor: '#4D7C5E', borderRadius: 4 } }} />
                    </Box>
                 </Box>
-                <Stack spacing={1.5} sx={{ mt: 'auto' }}>
-                   {ORDER_DISTRIBUTION.map((item) => (
-                      <Box key={item.name} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.2, borderRadius: 2, bgcolor: 'rgba(0,0,0,0.03)' }}>
-                         <Stack direction="row" spacing={1.5} alignItems="center">
-                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: item.color }} />
-                            <Typography variant="body2" fontWeight={800} sx={{ fontSize: '0.85rem' }}>{item.name}</Typography>
-                         </Stack>
-                         <Typography variant="body2" fontWeight={900} sx={{ fontSize: '0.85rem' }}>{item.value}%</Typography>
-                      </Box>
-                   ))}
-                </Stack>
-             </Paper>
+              </Paper>
+            </Stack>
           </Grid>
         </Grid>
       </Box>

@@ -37,14 +37,14 @@ const ReviewList = ({ reviews, restaurantId }) => {
     <Box sx={{ mt: 2 }}>
       {/* Reviews Header Stats */}
       <Grid container spacing={4} sx={{ mb: 6 }}>
-        <Grid item xs={12} md={4} sx={{ textAlign: 'center', borderRight: { md: '1px solid' }, borderColor: 'divider' }}>
+        <Grid size={{ xs: 12, md: 4 }} sx={{ textAlign: 'center', borderRight: { md: '1px solid' }, borderColor: 'divider' }}>
           <Typography variant="h2" fontWeight={900} color="primary">{averageRating}</Typography>
           <Rating value={parseFloat(averageRating)} readOnly precision={0.1} size="large" />
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             Based on {reviews.length} total reviews
           </Typography>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Stack spacing={1}>
             {ratingCounts.map((rc) => (
               <Box key={rc.star} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

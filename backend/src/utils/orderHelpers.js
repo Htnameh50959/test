@@ -40,18 +40,19 @@ exports.formatStatus = (status) => {
  * @returns {boolean}
  */
 const STATUS_FLOW = {
-  'PENDING': ['ACCEPTED', 'REJECTED', 'CANCELLED'],
-  'ACCEPTED': ['PREPARING', 'CANCELLED'],
-  'PREPARING': ['READY_FOR_PICKUP', 'CANCELLED'],
-  'READY_FOR_PICKUP': ['COURIER_ASSIGNED'],
-  'COURIER_ASSIGNED': ['PICKED_UP', 'UNASSIGNED'],
-  'PICKED_UP': ['IN_TRANSIT'],
-  'IN_TRANSIT': ['DELIVERED', 'ISSUE_REPORTED'],
-  'DELIVERED': ['COMPLETED'],
-  'COMPLETED': [],
-  'CANCELLED': [],
-  'REJECTED': []
+  'PENDING':          ['ACCEPTED', 'REJECTED', 'CANCELLED'],
+  'ACCEPTED':         ['PREPARING', 'CANCELLED'],
+  'REJECTED':         [],
+  'PREPARING':        ['READY_FOR_PICKUP', 'CANCELLED'],
+  'READY_FOR_PICKUP': ['COURIER_ASSIGNED', 'CANCELLED'],
+  'COURIER_ASSIGNED': ['PICKED_UP', 'CANCELLED'],
+  'PICKED_UP':        ['IN_TRANSIT', 'CANCELLED'],
+  'IN_TRANSIT':       ['DELIVERED', 'CANCELLED'],
+  'DELIVERED':        ['COMPLETED'],
+  'COMPLETED':        [],
+  'CANCELLED':        []
 };
+
 
 exports.validateStatusTransition = (currentStatus, newStatus) => {
   const allowedTransitions = STATUS_FLOW[currentStatus] || [];

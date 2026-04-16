@@ -25,12 +25,10 @@ createRoot(document.getElementById('root')).render(
 );
 
 // Register Service Worker for PWA
+// SW logic remains, but logs are silenced for production hygiene.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(reg => {
-      console.log('SW registered:', reg);
-    }).catch(err => {
-      console.log('SW registration failed:', err);
-    });
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
 }
+

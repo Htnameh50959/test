@@ -16,49 +16,27 @@ const OptimizedImage = ({
   aspectRatio = '16/9', 
   borderRadius = 0,
   objectFit = 'cover',
+  className = '',
   ...props 
 }) => {
-  const theme = useTheme();
   const [isLoaded, setIsLoaded] = useState(false);
-  const [blurSrc, setBlurSrc] = useState('');
-
-  useEffect(() => {
-    // Generate a tiny blur placeholder if possible, or use a low-res seed
-    if (src && src.includes('http')) {
-      setBlurSrc(`${src}?blur=10&w=20`); 
-    }
-  }, [src]);
 
   return (
     <Box 
+      className={`shimmer ${className}`}
       sx={{ 
         position: 'relative', 
         width: '100%', 
         paddingTop: `calc(1 / (${aspectRatio.split('/').join(' / ')}) * 100%)`,
         overflow: 'hidden',
         borderRadius,
-        bgcolor: 'grey.100'
+        bgcolor: 'grey.100',
+        isolation: 'isolate',
+        '&.shimmer::after': {
+          display: isLoaded ? 'none' : 'block'
+        }
       }}
     >
-      {/* Blur Placeholder */}
-      <Box
-        component="img"
-        src={blurSrc || src}
-        alt={alt}
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          objectFit,
-          filter: 'blur(10px)',
-          opacity: isLoaded ? 0 : 1,
-          transition: 'opacity 0.6s ease-in-out',
-          zIndex: 1
-        }}
-      />
-
       {/* Actual Image */}
       <Box
         component="img"
@@ -74,9 +52,10 @@ const OptimizedImage = ({
           height: '100%',
           objectFit,
           opacity: isLoaded ? 1 : 0,
-          transition: 'opacity 0.6s ease-in-out',
+          transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
           zIndex: 2,
-          transform: isLoaded ? 'scale(1)' : 'scale(1.05)'
+          transform: isLoaded ? 'scale(1)' : 'scale(1.03)',
+          willChange: 'opacity, transform'
         }}
         {...props}
       />

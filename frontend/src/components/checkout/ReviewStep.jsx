@@ -75,7 +75,7 @@ const ReviewStep = () => {
       <Stack spacing={3} sx={{ mt: 2 }}>
         {/* Delivery & Payment Summary */}
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Paper elevation={0} sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography variant="subtitle2" fontWeight={800} color="text.secondary">DELIVERY ADDRESS</Typography>
@@ -92,7 +92,7 @@ const ReviewStep = () => {
               </Box>
             </Paper>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Paper elevation={0} sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography variant="subtitle2" fontWeight={800} color="text.secondary">PAYMENT METHOD</Typography>

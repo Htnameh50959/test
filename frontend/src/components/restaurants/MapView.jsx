@@ -21,24 +21,20 @@ const createRestaurantIcon = (theme) => new L.Icon({
 // Helper to update map view when center/restaurants change
 const MapUpdater = ({ center }) => {
   const map = useMap();
+  
   useEffect(() => {
     if (center) {
       map.setView(center, map.getZoom());
-      // Classic Leaflet fix: invalidating size ensures tiles fill the container
-      // when it becomes visible or changes size.
-      setTimeout(() => {
-        map.invalidateSize();
-      }, 100);
     }
-  }, [center, map]);
-
-  // Also invalidate size on mount
-  useEffect(() => {
+    
+    // Invalidate size once after a short delay to ensure container is ready
+    // Using requestAnimationFrame or a single timeout is safer than multiple competing timeouts
     const timer = setTimeout(() => {
       map.invalidateSize();
-    }, 250);
+    }, 150);
+    
     return () => clearTimeout(timer);
-  }, [map]);
+  }, [center, map]);
 
   return null;
 };

@@ -46,7 +46,8 @@ export default function ErrorPage() {
              </Typography>
           </Box>
 
-          <Stack direction="row" spacing={2} justifyContent="center">
+          <Stack direction="row" spacing={2} sx={{ justifyContent: 'center' }}>
+
              <Button 
                 variant="contained" 
                 startIcon={<Refresh />} 

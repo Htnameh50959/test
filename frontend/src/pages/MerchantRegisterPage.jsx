@@ -230,8 +230,8 @@ export default function MerchantRegisterPage() {
         <Box component="form" onSubmit={activeStep === 3 ? formik.handleSubmit : nextStep}>
            {activeStep === 0 && (
               <Grid container spacing={4}>
-                 <Grid xs={12}><TextField fullWidth label="Full Legal Name" name="fullName" value={formik.values.fullName} onChange={formik.handleChange} /></Grid>
-                 <Grid xs={12} sm={6}>
+                 <Grid size={{ xs: 12 }}><TextField fullWidth label="Full Legal Name" name="fullName" value={formik.values.fullName} onChange={formik.handleChange} /></Grid>
+                 <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField 
                       fullWidth 
                       label="Work Email" 
@@ -251,14 +251,14 @@ export default function MerchantRegisterPage() {
                       }}
                     />
                  </Grid>
-                 <Grid xs={12} sm={6}><TextField fullWidth label="Contact Phone" name="phone" value={formik.values.phone} onChange={formik.handleChange} /></Grid>
+                 <Grid size={{ xs: 12, sm: 6 }}><TextField fullWidth label="Contact Phone" name="phone" value={formik.values.phone} onChange={formik.handleChange} /></Grid>
               </Grid>
            )}
 
            {activeStep === 1 && (
               <Grid container spacing={4}>
-                 <Grid xs={12}><TextField fullWidth label="Restaurant Name" name="businessName" value={formik.values.businessName} onChange={formik.handleChange} /></Grid>
-                 <Grid xs={12}><TextField fullWidth label="Physical Address" name="address" value={formik.values.address} onChange={formik.handleChange} /></Grid>
+                 <Grid size={{ xs: 12 }}><TextField fullWidth label="Restaurant Name" name="businessName" value={formik.values.businessName} onChange={formik.handleChange} /></Grid>
+                 <Grid size={{ xs: 12 }}><TextField fullWidth label="Physical Address" name="address" value={formik.values.address} onChange={formik.handleChange} /></Grid>
               </Grid>
            )}
 
@@ -288,8 +288,8 @@ export default function MerchantRegisterPage() {
 
            {activeStep === 3 && (
               <Grid container spacing={4}>
-                 <Grid xs={12}><TextField fullWidth type="password" label="Secure Password" name="password" value={formik.values.password} onChange={formik.handleChange} /></Grid>
-                 <Grid xs={12}><FormControlLabel control={<Checkbox name="terms" checked={formik.values.terms} onChange={formik.handleChange} />} label={<Typography variant="caption" fontWeight={700}>Accept Service Terms</Typography>} /></Grid>
+                 <Grid size={{ xs: 12 }}><TextField fullWidth type="password" label="Secure Password" name="password" value={formik.values.password} onChange={formik.handleChange} /></Grid>
+                 <Grid size={{ xs: 12 }}><FormControlLabel control={<Checkbox name="terms" checked={formik.values.terms} onChange={formik.handleChange} />} label={<Typography variant="caption" fontWeight={700}>Accept Service Terms</Typography>} /></Grid>
               </Grid>
            )}
 

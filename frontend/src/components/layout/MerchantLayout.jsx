@@ -8,7 +8,8 @@ import {
   RestaurantMenu as MenuIcon,
   Settings as SettingsIcon,
   Logout as LogoutIcon,
-  Notifications as NotificationsIcon
+  Notifications as NotificationsIcon,
+  Home as HomeIcon
 } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -22,6 +23,7 @@ const MENU_ITEMS = [
   { text: 'Bookings', icon: <BookingsIcon />, path: '/merchant/bookings' },
   { text: 'Analytics', icon: <AnalyticsIcon />, path: '/merchant/analytics' },
   { text: 'Menu', icon: <MenuIcon />, path: '/merchant/menu' },
+  { text: 'Profile', icon: <SettingsIcon />, path: '/merchant/profile' },
 ];
 
 export default function MerchantLayout({ children }) {
@@ -92,11 +94,37 @@ export default function MerchantLayout({ children }) {
           ))}
         </List>
 
-        <Divider sx={{ my: 4, opacity: 0.5 }} />
+        <Divider sx={{ my: 2, opacity: 0.5 }} />
 
         <List>
           <ListItem disablePadding sx={{ mb: 1 }}>
-            <ListItemButton sx={{ borderRadius: 3, py: 1.5 }}>
+            <ListItemButton 
+              component={Link}
+              to="/"
+              sx={{ 
+                borderRadius: 3, 
+                py: 1.5,
+                color: 'secondary.main',
+                '&:hover': { bgcolor: 'rgba(0,0,0,0.02)' }
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 45, color: 'inherit' }}><HomeIcon /></ListItemIcon>
+              <ListItemText 
+                primary={
+                  <Typography sx={{ fontWeight: 800, fontSize: '0.9rem' }}>
+                    Back to Home
+                  </Typography>
+                } 
+              />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding sx={{ mb: 1 }}>
+            <ListItemButton 
+              component={Link}
+              to="/merchant/profile"
+              sx={{ borderRadius: 3, py: 1.5 }}
+            >
               <ListItemIcon sx={{ minWidth: 45 }}><SettingsIcon /></ListItemIcon>
               <ListItemText 
                 primary={
@@ -145,7 +173,13 @@ export default function MerchantLayout({ children }) {
                <IconButton sx={{ bgcolor: 'white', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
                   <NotificationsIcon />
                </IconButton>
-               <Button variant="contained" startIcon={<Box component="span">⊕</Box>} sx={{ borderRadius: 10, px: 4 }}>
+               <Button 
+                variant="contained" 
+                component={Link}
+                to="/merchant/menu"
+                startIcon={<Box component="span">⊕</Box>} 
+                sx={{ borderRadius: 10, px: 4 }}
+              >
                   Add Item
                </Button>
             </Stack>

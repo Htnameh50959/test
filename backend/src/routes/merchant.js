@@ -54,6 +54,7 @@ const {
   getReviewSentiment,
   getBookings,
   updateBookingStatus,
+  updateSettings,
 } = require('../controllers/merchant');
 
 // ── Middleware ────────────────────────────────────────────────────────────────
@@ -190,5 +191,11 @@ router.get('/bookings', getBookings);
  * Body: { status, tableNumber? }
  */
 router.put('/bookings/:id/status', updateBookingStatus);
+
+/**
+ * PATCH /api/v1/merchant/settings
+ * Toggle restaurant-level settings (isReservationsEnabled, isOpen).
+ */
+router.patch('/settings', updateSettings);
 
 module.exports = router;

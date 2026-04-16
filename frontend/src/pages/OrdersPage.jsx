@@ -1,9 +1,8 @@
-// src/pages/OrdersPage.jsx
 import React, { useEffect, useState } from 'react';
 import {
   Box, Container, Typography, Grid, Paper, Stack,
   Button, Chip, Divider, IconButton, Tabs, Tab,
-  Pagination, Skeleton, alpha, useTheme
+  Pagination, Skeleton, alpha, useTheme, Avatar
 } from '@mui/material';
 import {
   Reorder as ReorderIcon,
@@ -12,7 +11,11 @@ import {
   ShoppingBag as BagIcon,
   Restaurant as RestaurantIcon,
   ChevronRight as ArrowIcon,
-  CalendarToday as DateIcon
+  CalendarToday as DateIcon,
+  EventSeat as TableIcon,
+  AccessTime as TimeIcon,
+  Group as GuestsIcon,
+  ConfirmationNumber as BookingIcon
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -21,8 +24,12 @@ import {
   fetchOrderHistory, 
   selectOrderHistory, 
   selectOrdersLoading, 
-  selectOrdersError 
 } from '@/redux/slices/ordersSlice';
+import { 
+  fetchUserBookings, 
+  selectUserBookings, 
+  selectRestaurantsLoading 
+} from '@/redux/slices/restaurantsSlice';
 import { addItem } from '@/redux/slices/cartSlice';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
@@ -31,17 +38,24 @@ const OrdersPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
-  const orders = useSelector(selectOrderHistory);
-  const loading = useSelector(selectOrdersLoading);
+  const [activeMainTab, setActiveMainTab] = useState(0); // 0: Orders, 1: Reservations
   const [filter, setFilter] = useState('ALL');
   const [page, setPage] = useState(1);
 
+  const orders = useSelector(selectOrderHistory);
+  const bookings = useSelector(selectUserBookings);
+  const ordersLoading = useSelector(selectOrdersLoading);
+  const bookingsLoading = useSelector(selectRestaurantsLoading);
+
   useEffect(() => {
-    dispatch(fetchOrderHistory({ page, status: filter === 'ALL' ? undefined : filter }));
-  }, [dispatch, page, filter]);
+    if (activeMainTab === 0) {
+      dispatch(fetchOrderHistory({ page, status: filter === 'ALL' ? undefined : filter }));
+    } else {
+      dispatch(fetchUserBookings());
+    }
+  }, [dispatch, page, filter, activeMainTab]);
 
   const handleReorder = (order) => {
-    // Add all items from previous order to cart
     order.items.forEach(item => {
       dispatch(addItem({
         ...item,
@@ -49,158 +63,172 @@ const OrdersPage = () => {
         restaurantName: order.restaurantName || order.restaurant?.name
       }));
     });
-    // Navigate to checkout or show success
     navigate('/checkout');
   };
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'DELIVERED': return 'success';
+    switch (status?.toUpperCase()) {
+      case 'DELIVERED': case 'CONFIRMED': return 'success';
       case 'CANCELLED': return 'error';
-      case 'PLACED': return 'info';
+      case 'PLACED': case 'PENDING': return 'info';
       default: return 'primary';
     }
   };
 
-  return (
-    <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh', py: 6 }}>
-      <Container maxWidth="md">
-        <Typography variant="h4" fontWeight={900} gutterBottom sx={{ mb: 4 }}>
-          My Orders
-        </Typography>
+  const renderOrders = () => (
+    <Stack spacing={3}>
+      {ordersLoading && !orders.length ? (
+        [1, 2, 3].map(i => (
+          <Paper key={i} sx={{ p: 3, borderRadius: 4 }}>
+            <Skeleton variant="text" width="40%" height={32} />
+            <Skeleton variant="rectangular" height={100} sx={{ mt: 2, borderRadius: 2 }} />
+          </Paper>
+        ))
+      ) : orders.length === 0 ? (
+        <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, bgcolor: 'transparent', border: '2px dashed', borderColor: 'divider' }}>
+          <BagIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+          <Typography variant="h6" fontWeight={700}>No orders yet</Typography>
+          <Button variant="contained" onClick={() => navigate('/')} sx={{ mt: 2 }}>Browse Restaurants</Button>
+        </Paper>
+      ) : (
+        orders.map((order) => (
+          <Paper key={order._id} elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 8 }}>
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                  <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main' }}><RestaurantIcon /></Avatar>
+                  <Box>
+                    <Typography variant="h6" fontWeight={800}>{order.restaurant?.name || 'Restaurant'}</Typography>
+                    <Typography variant="caption" color="text.secondary">{formatDate(order.createdAt)}</Typography>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }} sx={{ textAlign: { sm: 'right' } }}>
+                <Chip label={order.status} color={getStatusColor(order.status)} size="small" sx={{ fontWeight: 800 }} />
+                <Typography variant="subtitle1" fontWeight={900} sx={{ mt: 1 }}>{formatCurrency(order.totals?.total || order.total)}</Typography>
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <Divider sx={{ my: 2 }} />
+                <Box sx={{ display: 'flex', gap: 1.5 }}>
+                  <Button variant="contained" size="small" startIcon={<ReorderIcon />} onClick={() => handleReorder(order)}>Reorder</Button>
+                  <Button variant="outlined" size="small" onClick={() => navigate(`/orders/${order._id}`)}>Details</Button>
+                </Box>
+              </Grid>
+            </Grid>
+          </Paper>
+        ))
+      )}
+    </Stack>
+  );
 
-        {/* Filters */}
-        <Tabs 
-          value={filter} 
-          onChange={(_, val) => setFilter(val)}
-          sx={{ mb: 4, borderBottom: 1, borderColor: 'divider' }}
-        >
-          <Tab label="All Orders" value="ALL" sx={{ fontWeight: 700 }} />
-          <Tab label="Delivered" value="DELIVERED" sx={{ fontWeight: 700 }} />
-          <Tab label="Cancelled" value="CANCELLED" sx={{ fontWeight: 700 }} />
-        </Tabs>
-
-        {/* Orders List */}
-        <Stack spacing={3}>
-          {loading && !orders.length ? (
-            [1, 2, 3].map(i => (
-              <Paper key={i} sx={{ p: 3, borderRadius: 4 }}>
-                <Skeleton variant="text" width="40%" height={32} />
-                <Skeleton variant="text" width="60%" />
-                <Skeleton variant="rectangular" height={100} sx={{ mt: 2, borderRadius: 2 }} />
-              </Paper>
-            ))
-          ) : orders.length === 0 ? (
-            <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4 }}>
-              <BagIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-              <Typography variant="h6" fontWeight={700}>No orders yet</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                You haven't placed any orders yet. Ready to eat?
-              </Typography>
-              <Button variant="contained" onClick={() => navigate('/')}>Browse Restaurants</Button>
-            </Paper>
-          ) : (
-            orders.map((order) => (
-              <Paper 
-                key={order._id || order.id} 
-                elevation={0}
-                sx={{ 
-                  p: 3, 
-                  borderRadius: 4, 
-                  border: '1px solid', 
-                  borderColor: 'divider',
-                  transition: 'transform 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
-                    borderColor: 'primary.light'
-                  }
-                }}
-              >
+  const renderReservations = () => (
+    <Stack spacing={3}>
+      {bookingsLoading ? (
+        [1, 2].map(i => <Skeleton key={i} variant="rectangular" height={160} sx={{ borderRadius: 4 }} />)
+      ) : bookings.length === 0 ? (
+        <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, bgcolor: 'transparent', border: '2px dashed', borderColor: 'divider' }}>
+          <TableIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+          <Typography variant="h6" fontWeight={700}>No reservations yet</Typography>
+          <Button variant="contained" onClick={() => navigate('/')} sx={{ mt: 2 }}>Reserve a Table</Button>
+        </Paper>
+      ) : (
+        bookings.map((booking) => (
+          <Paper key={booking._id} elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', bgcolor: 'white' }}>
+            <Grid container spacing={3}>
+              <Grid size={{ xs: 12, sm: 7 }}>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Box sx={{ width: 80, height: 80, borderRadius: 3, bgcolor: alpha(theme.palette.primary.main, 0.05), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <TableIcon color="primary" sx={{ fontSize: 32 }} />
+                  </Box>
+                  <Box>
+                    <Typography variant="h6" fontWeight={900}>{booking.restaurant?.name || 'Restaurant'}</Typography>
+                    <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <DateIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+                        <Typography variant="caption" fontWeight={700}>{booking.date}</Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <TimeIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+                        <Typography variant="caption" fontWeight={700}>{booking.timeSlot}</Typography>
+                      </Box>
+                    </Stack>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 5 }} sx={{ textAlign: { sm: 'right' } }}>
+                <Chip label={booking.status || 'CONFIRMED'} color={getStatusColor(booking.status || 'CONFIRMED')} size="small" sx={{ fontWeight: 800, mb: 1 }} />
+                <Typography variant="body2" fontWeight={800} color="text.secondary" sx={{ display: 'block' }}>
+                  Ref: <Box component="span" sx={{ color: 'primary.main' }}>#{booking._id.slice(-6).toUpperCase()}</Box>
+                </Typography>
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <Divider sx={{ mb: 2 }} />
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={8}>
-                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                      <Box sx={{ 
-                        width: 64, height: 64, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                      }}>
-                        <RestaurantIcon color="primary" />
-                      </Box>
-                      <Box>
-                        <Typography variant="h6" fontWeight={800}>{order.restaurant?.name || 'Restaurant'}</Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                          <DateIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                          <Typography variant="caption" color="text.secondary">
-                            {formatDate(order.createdAt)}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
+                  <Grid size={{ xs: 6, sm: 3 }}>
+                    <Typography variant="caption" color="text.secondary" display="block">GUESTS</Typography>
+                    <Typography variant="body2" fontWeight={800}>{booking.partySize} People</Typography>
                   </Grid>
-                  <Grid item xs={12} sm={4} sx={{ textAlign: { sm: 'right' } }}>
-                    <Chip 
-                      label={order.status} 
-                      color={getStatusColor(order.status)}
-                      size="small"
-                      sx={{ fontWeight: 800, borderRadius: 1.5 }}
-                    />
-                    <Typography variant="subtitle1" fontWeight={900} sx={{ mt: 1 }}>
-                      {formatCurrency(order.totals?.total || order.total)}
-                    </Typography>
+                  <Grid size={{ xs: 6, sm: 3 }}>
+                    <Typography variant="caption" color="text.secondary" display="block">TABLE</Typography>
+                    <Typography variant="body2" fontWeight={800}>{booking.tableNumber || 'Standard'}</Typography>
                   </Grid>
-
-                  <Grid item xs={12}>
-                    <Divider sx={{ my: 2 }} />
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                      {order.items?.map(item => `${item.quantity} × ${item.name}`).join(', ').slice(0, 100)}
-                      {order.items?.length > 3 ? '...' : ''}
-                    </Typography>
-
-                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                      <Button 
-                        variant="contained" 
-                        size="small"
-                        startIcon={<ReorderIcon />}
-                        onClick={() => handleReorder(order)}
-                        sx={{ borderRadius: 2, fontWeight: 700 }}
-                      >
-                        Reorder
-                      </Button>
-                      <Button 
-                        variant="outlined" 
-                        size="small"
-                        onClick={() => navigate(`/orders/${order._id || order.id}`)}
-                        startIcon={<InfoIcon />}
-                        sx={{ borderRadius: 2, fontWeight: 700 }}
-                      >
-                        Details
-                      </Button>
-                      {order.status === 'DELIVERED' && !order.reviewed && (
-                        <Button 
-                          variant="text" 
-                          size="small"
-                          startIcon={<ReviewIcon />}
-                          sx={{ borderRadius: 2, fontWeight: 700 }}
-                        >
-                          Write Review
-                        </Button>
-                      )}
-                    </Box>
+                  <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', gap: 1, justifyContent: { sm: 'flex-end' }, alignItems: 'center' }}>
+                     <Button size="small" variant="outlined" sx={{ borderRadius: 2 }}>View Details</Button>
+                     <Button size="small" color="error" sx={{ borderRadius: 2 }}>Cancel</Button>
                   </Grid>
                 </Grid>
-              </Paper>
-            ))
-          )}
-        </Stack>
+              </Grid>
+            </Grid>
+          </Paper>
+        ))
+      )}
+    </Stack>
+  );
 
-        <Box sx={{ mt: 6, display: 'flex', justifyContent: 'center' }}>
-          <Pagination 
-            count={5} 
-            page={page} 
-            onChange={(_, val) => setPage(val)} 
-            color="primary" 
-          />
+  return (
+    <Box sx={{ bgcolor: '#FBF9F6', minHeight: '100vh', py: 6 }}>
+      <Container maxWidth="md">
+        <Typography variant="h3" fontWeight={900} gutterBottom sx={{ mb: 1, letterSpacing: -1 }}>
+          Activity Hub
+        </Typography>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 5 }}>
+          Manage your orders and table reservations in one place.
+        </Typography>
+
+        <Box sx={{ mb: 4, display: 'flex', bgcolor: 'white', p: 0.5, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+          <Button 
+            fullWidth 
+            onClick={() => setActiveMainTab(0)}
+            sx={{ 
+                borderRadius: 3.5, py: 1.5, fontWeight: 800,
+                bgcolor: activeMainTab === 0 ? 'primary.main' : 'transparent',
+                color: activeMainTab === 0 ? 'white' : 'text.secondary',
+                '&:hover': { bgcolor: activeMainTab === 0 ? 'primary.dark' : 'rgba(0,0,0,0.02)' }
+            }}
+          >
+            FOOD ORDERS
+          </Button>
+          <Button 
+            fullWidth 
+            onClick={() => setActiveMainTab(1)}
+            sx={{ 
+                borderRadius: 3.5, py: 1.5, fontWeight: 800,
+                bgcolor: activeMainTab === 1 ? 'primary.main' : 'transparent',
+                color: activeMainTab === 1 ? 'white' : 'text.secondary',
+                '&:hover': { bgcolor: activeMainTab === 1 ? 'primary.dark' : 'rgba(0,0,0,0.02)' }
+            }}
+          >
+            TABLE RESERVATIONS
+          </Button>
         </Box>
+
+        {activeMainTab === 0 ? renderOrders() : renderReservations()}
+
+        {activeMainTab === 0 && orders.length > 0 && (
+          <Box sx={{ mt: 6, display: 'flex', justifyContent: 'center' }}>
+            <Pagination count={5} page={page} onChange={(_, val) => setPage(val)} color="primary" />
+          </Box>
+        )}
       </Container>
     </Box>
   );

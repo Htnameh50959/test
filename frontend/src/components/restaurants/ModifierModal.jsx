@@ -85,9 +85,9 @@ export const ModifierModal = ({ open, onClose, item, restaurantId }) => {
       fullScreen={isMobile}
       maxWidth="sm"
       fullWidth
-      TransitionComponent={Transition}
-      PaperProps={{
-        sx: { borderRadius: isMobile ? 0 : 4, bgcolor: '#fbfbfb' }
+      slots={{ transition: Transition }}
+      slotProps={{
+        paper: { sx: { borderRadius: isMobile ? 0 : 4, bgcolor: '#fbfbfb' } }
       }}
     >
       {/* Header Image */}
@@ -120,7 +120,7 @@ export const ModifierModal = ({ open, onClose, item, restaurantId }) => {
         
         <Box sx={{ p: 3 }}>
           {item.image && <Typography variant="h5" fontWeight={900} gutterBottom>{item.name}</Typography>}
-          <Typography variant="body1" color="text.secondary" paragraph>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
             {item.description}
           </Typography>
           
@@ -198,8 +198,8 @@ export const ModifierModal = ({ open, onClose, item, restaurantId }) => {
               placeholder="e.g. Extra spicy, no onions..."
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
-              InputProps={{
-                sx: { borderRadius: 3 }
+              slotProps={{
+                input: { sx: { borderRadius: 3 } }
               }}
             />
           </Box>

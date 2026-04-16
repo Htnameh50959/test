@@ -60,7 +60,7 @@ const PaymentStep = () => {
             { id: 'paypal', label: 'PayPal', icon: <PayPalIcon /> },
             { id: 'apple_pay', label: 'Apple Pay', icon: <AppleIcon /> },
           ].map((method) => (
-            <Grid item xs={12} key={method.id}>
+            <Grid size={{ xs: 12 }} key={method.id}>
               <Paper
                 elevation={0}
                 sx={{
@@ -87,7 +87,7 @@ const PaymentStep = () => {
                 {selectedPayment === 'credit_card' && method.id === 'credit_card' && (
                   <Box sx={{ mt: 3, px: 2, pb: 2 }}>
                     <Grid container spacing={2}>
-                      <Grid item xs={12}>
+                      <Grid size={{ xs: 12 }}>
                         <TextField
                           fullWidth
                           label="Card Number"
@@ -99,7 +99,7 @@ const PaymentStep = () => {
                           InputProps={{ endAdornment: <CardIcon color="action" /> }}
                         />
                       </Grid>
-                      <Grid item xs={12}>
+                      <Grid size={{ xs: 12 }}>
                         <TextField
                           fullWidth
                           label="Cardholder Name"
@@ -110,7 +110,7 @@ const PaymentStep = () => {
                           helperText={formik.touched.cardholderName && formik.errors.cardholderName}
                         />
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={{ xs: 6 }}>
                         <TextField
                           fullWidth
                           label="Expiry Date (MM/YY)"
@@ -121,7 +121,7 @@ const PaymentStep = () => {
                           helperText={formik.touched.expiryDate && formik.errors.expiryDate}
                         />
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={{ xs: 6 }}>
                         <TextField
                           fullWidth
                           label="CVV"

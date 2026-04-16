@@ -4,11 +4,26 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   Box, Container, Grid, Typography, Stack, Button, 
   Tabs, Tab, Divider, Paper, Chip, IconButton,
-  alpha, useTheme, useMediaQuery, AppBar, Toolbar, CircularProgress, Dialog, TextField
+  alpha, useTheme, useMediaQuery, AppBar, Toolbar, CircularProgress
 } from '@mui/material';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// Fix Vite/Webpack breaking Leaflet's default marker icon asset paths
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
 import { 
   Star, 
   Timer, 
@@ -38,6 +53,8 @@ import {
 } from '@/redux/slices/cartSlice';
 import { selectIsAuthenticated } from '@/redux/slices/authSlice';
 import { formatCurrency } from '@/utils';
+import { calculateItemPrice } from '@/redux/slices/cartSlice';
+
 
 // Components
 import { RestaurantDetailSkeleton } from '@/components/restaurants/RestaurantSkeletons';
@@ -79,7 +96,6 @@ const RestaurantPage = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeCategory, setActiveCategory] = useState('');
-  const [bookingOpen, setBookingOpen] = useState(false);
 
   const categoryRefs = useRef({});
 
@@ -91,6 +107,14 @@ const RestaurantPage = () => {
       window.scrollTo(0, 0);
     }
   }, [id, dispatch]);
+
+  // Sync activeCategory to the first available category when menu loads
+  useEffect(() => {
+    const categories = Object.keys(menuByCategory || {});
+    if (categories.length > 0 && (!activeCategory || !categories.includes(activeCategory))) {
+      setActiveCategory(categories[0]);
+    }
+  }, [menuByCategory]);
 
   // SEO
   useEffect(() => {
@@ -147,9 +171,9 @@ const RestaurantPage = () => {
           aspectRatio={isMobile ? "16/9" : "21/9"}
         />
         {/* Deep Overlay Gradient */}
-        <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)' }} />
+        <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)', zIndex: 3 }} />
         
-        <Box sx={{ position: 'absolute', bottom: 60, left: 0, right: 0 }}>
+        <Box sx={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 4 }}>
           <Container maxWidth="lg">
             <Stack direction="row" spacing={1.5} sx={{ mb: 2 }}>
               <Chip 
@@ -202,15 +226,17 @@ const RestaurantPage = () => {
               <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                 <Button 
                    variant="outlined" 
-                   onClick={() => setBookingOpen(true)}
+                   disabled={restaurant.isReservationsEnabled === false}
+                   onClick={() => navigate(`/reservations/${id}`)}
                    sx={{ 
                      borderRadius: 8, px: 4, py: 1.5, fontWeight: 900, 
                      color: 'white', borderColor: 'rgba(255,255,255,0.4)',
                      backdropFilter: 'blur(10px)',
-                     '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } 
+                     '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
+                     '&.Mui-disabled': { color: 'rgba(255,255,255,0.3)', borderColor: 'rgba(255,255,255,0.1)' }
                    }}
                 >
-                   RESERVE A TABLE
+                   {restaurant.isReservationsEnabled === false ? 'BOOKING CLOSED' : 'RESERVE A TABLE'}
                 </Button>
                 <Button 
                    variant="contained" 
@@ -224,35 +250,10 @@ const RestaurantPage = () => {
         </Box>
       </Box>
 
-      {/* Booking Modal */}
-      <Dialog 
-        open={bookingOpen} 
-        onClose={() => setBookingOpen(false)}
-        slotProps={{ paper: { sx: { borderRadius: 6, p: 3, maxWidth: 450 } } }}
-      >
-        <Box sx={{ p: 1 }}>
-          <Typography variant="h4" fontWeight={900} sx={{ mb: 1, letterSpacing: -1 }}>Reserve at {restaurant.name}</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 4, fontWeight: 700 }}>Exclusive table for your group.</Typography>
-          
-          <Stack spacing={3}>
-            <TextField select fullWidth label="Party Size" defaultValue={2} SelectProps={{ native: true }}>
-                {[1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n} People</option>)}
-            </TextField>
-            <TextField type="date" fullWidth label="Preferred Date" InputLabelProps={{ shrink: true }} defaultValue={new Date().toISOString().split('T')[0]} />
-            <TextField select fullWidth label="Available Time Slots" SelectProps={{ native: true }}>
-                {['19:00', '19:30', '20:00', '20:30', '21:00'].map(t => <option key={t} value={t}>{t}</option>)}
-            </TextField>
-            <Button fullWidth variant="contained" sx={{ py: 2, borderRadius: 4, fontWeight: 900, fontSize: '1.1rem' }} onClick={() => setBookingOpen(false)}>
-                Request Exclusive Table
-            </Button>
-          </Stack>
-        </Box>
-      </Dialog>
-
       <Container maxWidth="lg" sx={{ mt: 6 }}>
         <Grid container spacing={6}>
           {/* Main Content Area */}
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 5 }}>
               <Tabs 
                 value={activeTab} 
@@ -295,7 +296,7 @@ const RestaurantPage = () => {
                     <Typography variant="h4" sx={{ mb: 4, letterSpacing: '-0.02em', fontWeight: 900 }}>{cat}</Typography>
                     <Grid container spacing={3}>
                       {items.map(item => (
-                        <Grid item xs={12} key={item._id}>
+                        <Grid size={{ xs: 12 }} key={item._id}>
                           <MenuItemCard 
                             item={{ ...item, isPopular: item.name.length % 3 === 0 }} // Mocking popularity
                             onSelect={(item) => setSelectedItem(item)} 
@@ -327,7 +328,7 @@ const RestaurantPage = () => {
           </Grid>
 
           {/* Sidebar Area */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Box sx={{ position: 'sticky', top: 120 }}>
               <Paper sx={{ p: 4, borderRadius: 6, bgcolor: '#FBF9F6', border: '1px solid rgba(0,0,0,0.03)', boxShadow: '0 10px 40px rgba(0,0,0,0.03)' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -336,9 +337,11 @@ const RestaurantPage = () => {
                 </Box>
                 
                 <Stack spacing={3} sx={{ mb: 4 }}>
-                  {cartItems.map((item, i) => (
-                    <Box key={i} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                      <Box sx={{ px: 1, py: 0.2, bgcolor: 'grey.100', borderRadius: 1, fontSize: '0.75rem', fontWeight: 900 }}>1</Box>
+                  {cartItems.map((item) => (
+                    <Box key={item.id} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                      <Box sx={{ px: 1, py: 0.2, bgcolor: 'grey.100', borderRadius: 1, fontSize: '0.75rem', fontWeight: 900 }}>
+                        {item.quantity || 1}
+                      </Box>
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="subtitle2" fontWeight={800}>{item.name}</Typography>
                         {item.modifiers?.map(m => (
@@ -348,10 +351,11 @@ const RestaurantPage = () => {
                         ))}
                       </Box>
                       <Typography variant="subtitle2" fontWeight={900}>
-                        {formatCurrency(item.price + (item.modifiers?.reduce((a, b) => a + b.price, 0) || 0))}
+                        {formatCurrency(calculateItemPrice(item))}
                       </Typography>
                     </Box>
                   ))}
+
                   {cartItems.length === 0 && (
                     <Typography color="text.secondary" sx={{ fontStyle: 'italic', py: 4, textAlign: 'center' }}>
                       Start adding items from the menu
@@ -414,15 +418,20 @@ const RestaurantPage = () => {
         {/* Tab Content: Reviews */}
         {activeTab === 1 && (
           <Suspense fallback={<Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>}>
-            <ReviewSection restaurantId={restaurant._id} analytics={analytics} />
+            <ReviewSection 
+              restaurantId={restaurant._id} 
+              analytics={analytics} 
+              onError={(e) => console.error('ReviewSection load failure:', e)} 
+            />
           </Suspense>
         )}
+
 
         {/* Tab Content: Info */}
         {activeTab === 2 && (
           <Box>
             <Grid container spacing={6}>
-              <Grid item xs={12} md={7}>
+              <Grid size={{ xs: 12, md: 7 }}>
                 <Typography variant="h6" fontWeight={900} gutterBottom>About {restaurant.name}</Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.8 }}>
                   {restaurant.description || "Welcome to our kitchen! We take pride in serving high-quality ingredients with love. Our secret recipe has been perfected over years to give you the most authentic taste in the city."}
@@ -446,7 +455,7 @@ const RestaurantPage = () => {
                 </Stack>
               </Grid>
 
-              <Grid item xs={12} md={5}>
+              <Grid size={{ xs: 12, md: 5 }}>
                  <Paper sx={{ p: 1, borderRadius: 4, overflow: 'hidden', height: 320 }}>
                     <MapContainer 
                       center={restaurant.location?.coordinates ? [restaurant.location.coordinates[1], restaurant.location.coordinates[0]] : [17.3850, 78.4867]} 
@@ -454,7 +463,19 @@ const RestaurantPage = () => {
                       style={{ height: '100%', width: '100%' }}
                     >
                       <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
-                      {restaurant.location?.coordinates && <Marker position={[restaurant.location.coordinates[1], restaurant.location.coordinates[0]]} />}
+                      {restaurant.location?.coordinates && (
+                        <Marker position={[restaurant.location.coordinates[1], restaurant.location.coordinates[0]]}>
+                          <Popup>
+                            <strong>{restaurant.name}</strong><br />
+                            {restaurant.address?.street || ''}{restaurant.address?.city ? `, ${restaurant.address.city}` : ''}
+                          </Popup>
+                        </Marker>
+                      )}
+                      {!restaurant.location?.coordinates && (
+                        <Marker position={[17.3850, 78.4867]}>
+                          <Popup><strong>{restaurant.name}</strong></Popup>
+                        </Marker>
+                      )}
                     </MapContainer>
                   </Paper>
                   <Box sx={{ mt: 2 }}>

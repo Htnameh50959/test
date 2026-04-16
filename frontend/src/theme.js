@@ -39,6 +39,7 @@ const theme = createTheme({
           borderRadius: 8, 
           padding: '12px 28px',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:active': { transform: 'scale(0.96)' }, // Click feedback
         },
         containedPrimary: { 
           background: 'linear-gradient(135deg, #D85830 0%, #F1754E 100%)',
@@ -48,19 +49,26 @@ const theme = createTheme({
             transform: 'translateY(-2px)',
           } 
         },
-        outlined: {
+        outlinedSecondary: {
           borderWidth: '1.5px',
-          '&:hover': { borderWidth: '1.5px' }
+          '&:hover': { borderWidth: '1.5px', bgcolor: 'rgba(45, 41, 38, 0.04)' }
         }
+
       },
     },
     MuiCard: {
       styleOverrides: {
         root: { 
           borderRadius: 12, 
-          boxShadow: '0 8px 30px rgba(45, 41, 38, 0.04)',
+          boxShadow: '0 10px 40px rgba(45, 41, 38, 0.05)',
           border: '1px solid rgba(45, 41, 38, 0.05)',
+          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: '0 20px 60px rgba(45, 41, 38, 0.08)',
+          }
         },
+
       },
     },
     MuiTextField: {

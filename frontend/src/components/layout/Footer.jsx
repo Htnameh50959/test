@@ -42,7 +42,8 @@ const Footer = () => {
     <Box component="footer" sx={{ bgcolor: '#1D3557', color: 'white', pt: 10, pb: 6 }}>
       <Container maxWidth="lg">
         <Grid container spacing={8}>
-           <Grid xs={12} md={3}>
+           <Grid size={{ xs: 12, md: 3 }}>
+
               <Typography variant="h6" fontWeight={900} sx={{ letterSpacing: -1, color: 'white', mb: 3 }}>
                  THE <Box component="span" sx={{ fontStyle: 'italic', fontWeight: 500 }}>KINETIC</Box> CURATOR
               </Typography>
@@ -59,7 +60,8 @@ const Footer = () => {
            </Grid>
 
           {footerSections.map((section) => (
-            <Grid key={section.title} xs={6} md={2}>
+            <Grid key={section.title} size={{ xs: 6, md: 2 }}>
+
               <Typography variant="subtitle2" fontWeight={800} sx={{ color: 'white', mb: 3, letterSpacing: 1 }}>
                 {section.title.toUpperCase()}
               </Typography>
@@ -85,7 +87,8 @@ const Footer = () => {
           ))}
 
           {/* App Installation */}
-          <Grid xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
+
             <Typography variant="subtitle2" fontWeight={800} sx={{ color: 'white', mb: 3, letterSpacing: 1 }}>
               EXPERIENCE MOBILE
             </Typography>

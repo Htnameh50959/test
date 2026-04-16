@@ -44,14 +44,16 @@ export default defineConfig({
   // ── Build ───────────────────────────────────────────────────────────────────
   build: {
     outDir:          'dist',
-    sourcemap:       true,
+    sourcemap:       false, // Speed up production build
     chunkSizeWarningLimit: 1000,
+    cssCodeSplit:    true,
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
             if (['react', 'react-dom', 'react-router-dom'].some((p) => id.includes(p))) return 'vendor';
             if (['@reduxjs/toolkit', 'react-redux', 'redux'].some((p) => id.includes(p)))  return 'redux';
+            if (['framer-motion', 'framer'].some((p) => id.includes(p)))                  return 'animations';
             if (['@mui', '@emotion'].some((p) => id.includes(p)))                           return 'mui';
             if (['leaflet', 'react-leaflet'].some((p) => id.includes(p)))                  return 'maps';
             if (id.includes('socket.io-client'))                                            return 'sockets';

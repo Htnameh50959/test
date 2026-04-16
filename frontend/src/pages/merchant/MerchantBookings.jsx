@@ -69,7 +69,7 @@ export default function MerchantBookings() {
       </Box>
 
       <Grid container spacing={4}>
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
            <Typography variant="caption" fontWeight={900} color="text.secondary" sx={{ mb: 2, display: 'block', letterSpacing: 1.5 }}>
              {loading ? 'REFRESHING...' : 'UPCOMING RESERVATIONS'}
            </Typography>
@@ -92,7 +92,7 @@ export default function MerchantBookings() {
                    }}
                  >
                     <Grid container alignItems="center" spacing={2}>
-                      <Grid item>
+                      <Grid size={{ xs: 'auto' }}>
                         <Avatar 
                           src={b.customer?.profile?.avatar} 
                           sx={{ width: 56, height: 56, bgcolor: 'primary.light' }}
@@ -100,7 +100,7 @@ export default function MerchantBookings() {
                           {b.customer?.profile?.firstName?.charAt(0) || <Person />}
                         </Avatar>
                       </Grid>
-                      <Grid item xs>
+                      <Grid size={{ xs: true }}>
                         <Typography variant="h6" fontWeight={800}>
                           {b.customer?.profile?.firstName} {b.customer?.profile?.lastName}
                         </Typography>
@@ -115,7 +115,7 @@ export default function MerchantBookings() {
                           </Box>
                         </Stack>
                       </Grid>
-                      <Grid item>
+                      <Grid size={{ xs: 'auto' }}>
                         <Chip 
                           label={b.status.toUpperCase()} 
                           size="small" 
@@ -123,10 +123,10 @@ export default function MerchantBookings() {
                           sx={{ fontWeight: 900, borderRadius: 1.5, px: 1 }}
                         />
                       </Grid>
-                      <Grid item>
+                      <Grid size={{ xs: 'auto' }}>
                         <Divider orientation="vertical" flexItem sx={{ height: 40, mx: 1 }} />
                       </Grid>
-                      <Grid item>
+                      <Grid size={{ xs: 'auto' }}>
                         <Stack direction="row" spacing={1}>
                           {b.status === 'pending' && (
                             <Tooltip title="Confirm">
@@ -169,7 +169,7 @@ export default function MerchantBookings() {
            )}
         </Grid>
 
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
            <Paper elevation={0} sx={{ p: 4, borderRadius: 8, bgcolor: '#2D2926', color: 'white', minHeight: 400, position: 'sticky', top: 24 }}>
               <Typography variant="h6" fontWeight={900} sx={{ mb: 4 }}>Floor Statistics</Typography>
               <Stack spacing={4}>
@@ -184,13 +184,13 @@ export default function MerchantBookings() {
                  </Box>
                  
                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
+                    <Grid size={{ xs: 6 }}>
                        <Box sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 4 }}>
                           <Typography variant="caption" sx={{ opacity: 0.6, display: 'block' }}>CONFIRMED</Typography>
                           <Typography variant="h6" fontWeight={900}>{stats.confirmed}</Typography>
                        </Box>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid size={{ xs: 6 }}>
                        <Box sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 4 }}>
                           <Typography variant="caption" sx={{ opacity: 0.6, display: 'block' }}>PENDING</Typography>
                           <Typography variant="h6" fontWeight={900}>{stats.pending}</Typography>

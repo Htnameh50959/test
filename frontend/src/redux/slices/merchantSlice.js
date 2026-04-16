@@ -13,6 +13,18 @@ export const fetchMerchantMenu = createAsyncThunk(
   }
 );
 
+export const fetchMerchantDashboard = createAsyncThunk(
+  'merchant/fetchDashboard',
+  async (restaurantId, { rejectWithValue }) => {
+    try {
+      const { data } = await merchantService.getDashboard(restaurantId);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch dashboard data');
+    }
+  }
+);
+
 export const addMenuItem = createAsyncThunk(
   'merchant/addMenuItem',
   async (itemData, { rejectWithValue }) => {
@@ -85,6 +97,69 @@ export const updateMerchantBookingStatus = createAsyncThunk(
   }
 );
 
+export const updateRestaurantSettings = createAsyncThunk(
+  'merchant/updateSettings',
+  async (settingsData, { rejectWithValue }) => {
+    try {
+      const { data } = await merchantService.updateSettings(settingsData);
+      return data.data; // updated restaurant object
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to update settings');
+    }
+  }
+);
+
+// --- Analytics Thunks ---
+
+export const fetchSalesAnalytics = createAsyncThunk(
+  'merchant/fetchSalesAnalytics',
+  async (params, { rejectWithValue }) => {
+    try {
+      const { data } = await merchantService.getSalesAnalytics(params);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch sales analytics');
+    }
+  }
+);
+
+export const fetchPopularItems = createAsyncThunk(
+  'merchant/fetchPopularItems',
+  async (params, { rejectWithValue }) => {
+    try {
+      const { data } = await merchantService.getPopularItems(params);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch popular items');
+    }
+  }
+);
+
+export const fetchPeakHours = createAsyncThunk(
+  'merchant/fetchPeakHours',
+  async (params, { rejectWithValue }) => {
+    try {
+      const { data } = await merchantService.getPeakHours(params);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch peak hours');
+    }
+  }
+);
+
+export const fetchReviewSentiment = createAsyncThunk(
+  'merchant/fetchReviewSentiment',
+  async (params, { rejectWithValue }) => {
+    try {
+      const { data } = await merchantService.getReviews(params);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch review sentiment');
+    }
+  }
+);
+
+
 const merchantSlice = createSlice({
   name: 'merchant',
   initialState: {
@@ -103,8 +178,16 @@ const merchantSlice = createSlice({
       items: [],
       loading: false,
       error: null,
+    },
+    analytics: {
+      sales: { data: null, loading: false },
+      popular: { data: null, loading: false },
+      peak: { data: null, loading: false },
+      sentiment: { data: null, loading: false },
+      error: null,
     }
   },
+
   reducers: {
     clearMerchantError: (state) => {
       state.menu.error = null;
@@ -193,7 +276,61 @@ const merchantSlice = createSlice({
         if (index !== -1) {
           state.bookings.items[index] = payload;
         }
+      })
+      
+      // Fetch Dashboard
+      .addCase(fetchMerchantDashboard.pending, (state) => {
+        state.dashboard.loading = true;
+      })
+      .addCase(fetchMerchantDashboard.fulfilled, (state, { payload }) => {
+        state.dashboard.loading = false;
+        state.dashboard.data = payload;
+      })
+      .addCase(fetchMerchantDashboard.rejected, (state, { payload }) => {
+        state.dashboard.loading = false;
+        state.dashboard.error = payload;
+      })
+      
+      // Update Restaurant Settings
+      .addCase(updateRestaurantSettings.fulfilled, (state, { payload }) => {
+        // payload is the updated restaurant object
+        if (state.dashboard.data && state.dashboard.data.restaurant) {
+          state.dashboard.data.restaurant = {
+            ...state.dashboard.data.restaurant,
+            ...payload
+          };
+        }
+      })
+      // --- Analytics Cases ---
+      // Sales
+      .addCase(fetchSalesAnalytics.pending, (state) => { state.analytics.sales.loading = true; })
+      .addCase(fetchSalesAnalytics.fulfilled, (state, { payload }) => {
+        state.analytics.sales.loading = false;
+        state.analytics.sales.data = payload;
+      })
+      .addCase(fetchSalesAnalytics.rejected, (state, { payload }) => {
+        state.analytics.sales.loading = false;
+        state.analytics.error = payload;
+      })
+      // Popular Items
+      .addCase(fetchPopularItems.pending, (state) => { state.analytics.popular.loading = true; })
+      .addCase(fetchPopularItems.fulfilled, (state, { payload }) => {
+        state.analytics.popular.loading = false;
+        state.analytics.popular.data = payload;
+      })
+      // Peak Hours
+      .addCase(fetchPeakHours.pending, (state) => { state.analytics.peak.loading = true; })
+      .addCase(fetchPeakHours.fulfilled, (state, { payload }) => {
+        state.analytics.peak.loading = false;
+        state.analytics.peak.data = payload;
+      })
+      // Review Sentiment
+      .addCase(fetchReviewSentiment.pending, (state) => { state.analytics.sentiment.loading = true; })
+      .addCase(fetchReviewSentiment.fulfilled, (state, { payload }) => {
+        state.analytics.sentiment.loading = false;
+        state.analytics.sentiment.data = payload;
       });
+
   }
 });
 

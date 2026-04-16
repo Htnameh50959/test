@@ -197,7 +197,8 @@ const ReviewSubmissionModal = ({ open, onClose, order }) => {
           {/* 3. Review Panels Grid */}
           <Grid container spacing={4}>
             {/* Detailed Review Section */}
-            <Grid xs={12} md={7}>
+            <Grid size={{ xs: 12, md: 7 }}>
+
               <Paper sx={{ p: 4, borderRadius: 6, bgcolor: 'rgba(0,0,0,0.02)', border: 'none' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                   <Typography variant="subtitle1" fontWeight={900}>Detailed Review</Typography>
@@ -231,7 +232,8 @@ const ReviewSubmissionModal = ({ open, onClose, order }) => {
             </Grid>
 
             {/* Photo & Points Section */}
-            <Grid xs={12} md={5}>
+            <Grid size={{ xs: 12, md: 5 }}>
+
               <Stack spacing={4}>
                 {/* Photo Upload Box */}
                 <Box 
@@ -338,36 +340,6 @@ const ReviewSubmissionModal = ({ open, onClose, order }) => {
     </Dialog>
   );
 };
-      ) : (
-        /* Success Celebration View */
-        <Box sx={{ p: 5, textAlign: 'center' }}>
-          <TrophyIcon sx={{ fontSize: 80, color: 'warning.main', mb: 3 }} />
-          <Typography variant="h4" fontWeight={900} gutterBottom>Thank You!</Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
-            Review submitted successfully.
-          </Typography>
-          
-          <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, p: 3, bgcolor: 'warning.main', borderRadius: '50%', mb: 4 }}>
-            <Typography variant="h3" fontWeight={900} color="white">+{pointsData.total}</Typography>
-            <PointsIcon sx={{ color: 'white', fontSize: 40 }} />
-          </Box>
-          
-          <Typography variant="h6" fontWeight={800} color="warning.dark" display="block">
-            POINTS EARNED!
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Your loyalty balance has been updated.
-          </Typography>
-
-          <Box sx={{ mt: 6 }}>
-            <Button variant="outlined" onClick={onClose} sx={{ borderRadius: 6, px: 6 }}>
-              Close
-            </Button>
-          </Box>
-        </Box>
-      )}
-    </Dialog>
-  );
-};
 
 export default ReviewSubmissionModal;
+

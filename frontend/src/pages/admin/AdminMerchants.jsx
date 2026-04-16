@@ -1,15 +1,57 @@
-import { Box, Typography, Paper, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Chip, Button, TextField, InputAdornment, IconButton, Menu, MenuItem, Stack } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { 
+  Box, Typography, Paper, Grid, Table, TableBody, TableCell, 
+  TableContainer, TableHead, TableRow, Avatar, Chip, Button, 
+  TextField, InputAdornment, IconButton, Menu, MenuItem, Stack, CircularProgress 
+} from '@mui/material';
 import { Search, FilterList, MoreVert, Store, CheckCircle, Block, Visibility } from '@mui/icons-material';
 import AdminLayout from '@/components/layout/AdminLayout';
-
-const MERCHANTS = [
-  { id: 'M1', name: 'Grand Hyatt Buffet', owner: 'Victor Wang', category: 'Fine Dining', status: 'Verified', rev: '₹124,000', orders: 1240 },
-  { id: 'M2', name: 'Elite Bistro', owner: 'Sarah Jenkins', category: 'Cafe', status: 'Pending', rev: '₹0', orders: 0 },
-  { id: 'M3', name: 'Shadow Lounge', owner: 'Michael Scott', category: 'Bar & Grill', status: 'Verified', rev: '₹86,000', orders: 840 },
-  { id: 'M4', name: 'Rustic Flame', owner: 'Julia Roberts', category: 'Steakhouse', status: 'Suspended', rev: '₹42,000', orders: 320 },
-];
+import adminService from '@/services/adminService';
 
 export default function AdminMerchants() {
+  const [merchants, setMerchants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchMerchants();
+  }, []);
+
+  const fetchMerchants = async () => {
+    try {
+      setLoading(true);
+      const { data } = await adminService.getMerchants();
+      setMerchants(data.data);
+    } catch (err) {
+      console.error('Failed to fetch merchants:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerify = async (id, isVerified) => {
+    try {
+      await adminService.verifyMerchant(id, { isVerified: !isVerified });
+      fetchMerchants();
+    } catch (err) {
+      alert('Failed to update verification status');
+    }
+  };
+
+  const handleToggleActive = async (id, isActive) => {
+    try {
+      await adminService.verifyMerchant(id, { isActive: !isActive });
+      fetchMerchants();
+    } catch (err) {
+      alert('Failed to update activation status');
+    }
+  };
+
+  const filteredMerchants = merchants.filter(m => 
+    m.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    m.merchantId?.profile?.firstName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <AdminLayout>
       <Box sx={{ mb: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -27,6 +69,8 @@ export default function AdminMerchants() {
             <TextField 
                placeholder="Search merchant name or owner..." 
                size="small"
+               value={searchTerm}
+               onChange={(e) => setSearchTerm(e.target.value)}
                InputProps={{ 
                   startAdornment: <InputAdornment position="start"><Search /></InputAdornment>,
                   sx: { borderRadius: 3, width: 350, bgcolor: '#FBF9F6' }
@@ -38,55 +82,80 @@ export default function AdminMerchants() {
          </Box>
 
          <TableContainer>
-            <Table>
-               <TableHead>
-                  <TableRow>
-                     <TableCell sx={{ fontWeight: 900, color: 'text.secondary' }}>MERCHANT</TableCell>
-                     <TableCell sx={{ fontWeight: 900, color: 'text.secondary' }}>CATEGORY</TableCell>
-                     <TableCell sx={{ fontWeight: 900, color: 'text.secondary' }}>STATUS</TableCell>
-                     <TableCell sx={{ fontWeight: 900, color: 'text.secondary' }}>REVENUE</TableCell>
-                     <TableCell sx={{ fontWeight: 900, color: 'text.secondary' }}>ORDERS</TableCell>
-                     <TableCell align="right" sx={{ fontWeight: 900, color: 'text.secondary' }}>ACTION</TableCell>
-                  </TableRow>
-               </TableHead>
-               <TableBody>
-                  {MERCHANTS.map((m) => (
-                    <TableRow key={m.id} hover>
-                       <TableCell>
-                          <Stack direction="row" spacing={2} alignItems="center">
-                             <Avatar sx={{ bgcolor: '#FBF9F6', color: '#1D3557', border: '1px solid rgba(0,0,0,0.05)', fontWeight: 900 }}>{m.name[0]}</Avatar>
-                             <Box>
-                                <Typography variant="subtitle2" fontWeight={900}>{m.name}</Typography>
-                                <Typography variant="caption" color="text.secondary" fontWeight={700}>{m.owner}</Typography>
-                             </Box>
-                          </Stack>
-                       </TableCell>
-                       <TableCell sx={{ fontWeight: 800 }}>{m.category}</TableCell>
-                       <TableCell>
-                          <Chip 
-                             label={m.status} 
-                             size="small" 
-                             sx={{ 
-                               fontWeight: 900, 
-                               bgcolor: m.status === 'Verified' ? 'rgba(77, 124, 94, 0.1)' : m.status === 'Suspended' ? 'rgba(188, 65, 35, 0.1)' : 'rgba(0,0,0,0.05)',
-                               color: m.status === 'Verified' ? 'success.main' : m.status === 'Suspended' ? 'error.main' : 'text.secondary'
-                             }} 
-                          />
-                       </TableCell>
-                       <TableCell sx={{ fontWeight: 900 }}>{m.rev}</TableCell>
-                       <TableCell sx={{ fontWeight: 900 }}>{m.orders}</TableCell>
-                       <TableCell align="right">
-                          <Stack direction="row" spacing={1} justifyContent="flex-end">
-                             <IconButton size="small"><Visibility sx={{ fontSize: 18 }} /></IconButton>
-                             <IconButton size="small"><Block sx={{ fontSize: 18, color: 'error.main' }} /></IconButton>
-                          </Stack>
-                       </TableCell>
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
+            ) : (
+              <Table>
+                 <TableHead>
+                    <TableRow>
+                       <TableCell sx={{ fontWeight: 900, color: 'text.secondary' }}>MERCHANT</TableCell>
+                       <TableCell sx={{ fontWeight: 900, color: 'text.secondary' }}>CUISINES</TableCell>
+                       <TableCell sx={{ fontWeight: 900, color: 'text.secondary' }}>STATUS</TableCell>
+                       <TableCell sx={{ fontWeight: 900, color: 'text.secondary' }}>RATING</TableCell>
+                       <TableCell align="right" sx={{ fontWeight: 900, color: 'text.secondary' }}>ACTION</TableCell>
                     </TableRow>
-                  ))}
-               </TableBody>
-            </Table>
+                 </TableHead>
+                 <TableBody>
+                    {filteredMerchants.map((m) => (
+                      <TableRow key={m.id} hover>
+                         <TableCell>
+                            <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+                               <Avatar src={m.coverImage} sx={{ bgcolor: '#FBF9F6', color: '#1D3557', border: '1px solid rgba(0,0,0,0.05)', fontWeight: 900 }}>{m.name[0]}</Avatar>
+                               <Box>
+                                  <Typography variant="subtitle2" fontWeight={900}>{m.name}</Typography>
+                                  <Typography variant="caption" color="text.secondary" fontWeight={700}>
+                                    Owner: {m.merchantId?.profile?.firstName} {m.merchantId?.profile?.lastName}
+                                  </Typography>
+                               </Box>
+                            </Stack>
+                         </TableCell>
+                         <TableCell sx={{ fontWeight: 800 }}>{m.cuisineTypes?.join(', ')}</TableCell>
+                         <TableCell>
+                            <Stack direction="row" spacing={1}>
+                              <Chip 
+                                 label={m.isVerified ? 'Verified' : 'Pending'} 
+                                 size="small" 
+                                 onClick={() => handleVerify(m.id, m.isVerified)}
+                                 sx={{ 
+                                   fontWeight: 900, 
+                                   cursor: 'pointer',
+                                   bgcolor: m.isVerified ? 'rgba(77, 124, 94, 0.1)' : 'rgba(0,0,0,0.05)',
+                                   color: m.isVerified ? 'success.main' : 'text.secondary'
+                                 }} 
+                              />
+                              <Chip 
+                                 label={m.isActive ? 'Active' : 'Suspended'} 
+                                 size="small" 
+                                 onClick={() => handleToggleActive(m.id, m.isActive)}
+                                 sx={{ 
+                                   fontWeight: 900, 
+                                   cursor: 'pointer',
+                                   bgcolor: m.isActive ? 'rgba(77, 124, 94, 0.1)' : 'rgba(188, 65, 35, 0.1)',
+                                   color: m.isActive ? 'success.main' : 'error.main'
+                                 }} 
+                              />
+                            </Stack>
+                         </TableCell>
+                         <TableCell sx={{ fontWeight: 900 }}>{m.rating?.average} ★ ({m.rating?.count})</TableCell>
+                         <TableCell align="right">
+                            <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
+                               <IconButton size="small"><Visibility sx={{ fontSize: 18 }} /></IconButton>
+                               <IconButton 
+                                onClick={() => handleToggleActive(m.id, m.isActive)}
+                                size="small"
+                              >
+                                {m.isActive ? <Block sx={{ fontSize: 18, color: 'error.main' }} /> : <CheckCircle sx={{ fontSize: 18, color: 'success.main' }} />}
+                               </IconButton>
+                            </Stack>
+                         </TableCell>
+                      </TableRow>
+                    ))}
+                 </TableBody>
+              </Table>
+            )}
          </TableContainer>
       </Paper>
     </AdminLayout>
   );
 }
+

@@ -15,10 +15,11 @@ export default function ProtectedRoute({ allowedRoles }) {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
         <CircularProgress color="primary" />
       </Box>
     );
+
   }
 
   if (!isAuthenticated) {

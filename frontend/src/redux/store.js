@@ -12,6 +12,8 @@ import checkoutReducer   from './slices/checkoutSlice';
 import reviewsReducer    from './slices/reviewsSlice';
 import uiReducer       from './slices/uiSlice';
 import merchantReducer from './slices/merchantSlice';
+import courierReducer from './slices/courierSlice';
+
 import cartPersistMiddleware from './middleware/cartPersistMiddleware';
 
 const store = configureStore({
@@ -24,6 +26,8 @@ const store = configureStore({
     reviews:     reviewsReducer,
     ui:          uiReducer,
     merchant:    merchantReducer,
+    courier:     courierReducer,
+
   },
 
   // Redux DevTools is enabled automatically in development.

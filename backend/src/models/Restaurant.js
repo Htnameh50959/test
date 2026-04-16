@@ -248,10 +248,11 @@ const restaurantSchema = new mongoose.Schema(
     // ------------------------------------------------------------------
     // Status flags
     // ------------------------------------------------------------------
-    isOpen:     { type: Boolean, default: true },   // real-time open/closed toggle
-    isActive:   { type: Boolean, default: true },   // admin can deactivate
-    isVerified: { type: Boolean, default: false },  // admin verified the listing
-    isFeatured: { type: Boolean, default: false },  // show in promoted slots
+    isOpen:                 { type: Boolean, default: true },   // real-time open/closed toggle
+    isActive:               { type: Boolean, default: true },   // admin can deactivate
+    isVerified:             { type: Boolean, default: false },  // admin verified the listing
+    isFeatured:             { type: Boolean, default: false },  // show in promoted slots
+    isReservationsEnabled:  { type: Boolean, default: true },   // merchant can disable dine-in bookings
 
     // Tags for special badges: "New", "Top Rated", "Fast Delivery", etc.
     badges: [{ type: String, trim: true }],

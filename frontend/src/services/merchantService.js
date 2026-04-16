@@ -19,6 +19,14 @@ export const merchantService = {
   acceptOrder:       (id, data)     => api.put(`/merchant/orders/${id}/accept`, data),
   rejectOrder:       (id, reason)   => api.put(`/merchant/orders/${id}/reject`, { reason }),
   updateOrderStatus: (id, data)     => api.put(`/merchant/orders/${id}/status`, data),
+
+  // Booking / Reservation Management
+  getBookings:       (params)       => api.get('/merchant/bookings', { params }),
+  updateBookingStatus:(id, status)  => api.put(`/merchant/bookings/${id}/status`, { status }),
+
+  // Settings & Profile
+  updateSettings:    (data)         => api.patch('/merchant/settings', data),
+  updateProfile:     (id, data)     => api.put(`/restaurants/${id}`, data),
 };
 
 export default merchantService;

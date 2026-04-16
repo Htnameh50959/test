@@ -38,6 +38,9 @@ const orderRoutes = require('./routes/orders');
 const reviewRoutes = require('./routes/reviews');
 const merchantRoutes = require('./routes/merchant');
 const cartRoutes = require('./routes/cart');
+const bookingRoutes = require('./routes/bookings');
+const courierRoutes = require('./routes/courier');
+
 
 // We create an 'app' instance of Express. This is our server's brain.
 const myApp = express();
@@ -71,6 +74,10 @@ myApp.use('/api/v1/orders', orderRoutes);
 myApp.use('/api/v1/reviews', reviewRoutes);
 myApp.use('/api/v1/merchant', merchantRoutes);
 myApp.use('/api/v1/cart', cartRoutes);
+myApp.use('/api/v1/bookings', bookingRoutes);
+myApp.use('/api/v1/courier', courierRoutes);
+
+myApp.use('/api/v1/admin', require('./routes/admin'));
 myApp.use('/api/v1/admin/performance', require('./routes/performance'));
 
 // Health check route

@@ -16,6 +16,8 @@ import {
   selectUser, selectAuthLoading, selectAuthError,
   fetchProfile, updateProfile, logout, clearError
 } from '@/redux/slices/authSlice';
+import { addToast } from '@/redux/slices/uiSlice';
+
 import { addressSchema } from '@/utils';
 import { authService } from '@/services/authService';
 
@@ -45,12 +47,12 @@ export default function ProfilePage() {
       try {
         await dispatch(updateProfile({ profile: values })).unwrap();
         setEditMode(false);
-        setSaveMsg('Profile updated successfully!');
-        setTimeout(() => setSaveMsg(''), 3000);
+        dispatch(addToast({ message: 'Profile updated successfully!', severity: 'success' }));
       } catch (err) {
-        // Error handled by redux state
+        dispatch(addToast({ message: err || 'Failed to update profile', severity: 'error' }));
       }
     },
+
   });
 
   const addrFormik = useFormik({
@@ -82,18 +84,29 @@ export default function ProfilePage() {
         setAddrDialog(false);
         setEditingAddress(null);
         resetForm();
-        setSaveMsg(editingAddress ? 'Address updated!' : 'New address added!');
-        setTimeout(() => setSaveMsg(''), 3000);
-      } catch (err) { }
+        dispatch(addToast({ 
+          message: editingAddress ? 'Address updated!' : 'New address added!', 
+          severity: 'success' 
+        }));
+      } catch (err) {
+        dispatch(addToast({ message: 'Failed to save address', severity: 'error' }));
+      }
     },
+
   });
 
   const handleDeleteAddress = async (id) => {
     if (window.confirm('Are you sure you want to delete this address?')) {
-      const newAddresses = user.addresses.filter((a) => a._id !== id);
-      await dispatch(updateProfile({ addresses: newAddresses }));
+      try {
+        const newAddresses = user.addresses.filter((a) => a._id !== id);
+        await dispatch(updateProfile({ addresses: newAddresses })).unwrap();
+        dispatch(addToast({ message: 'Address deleted', severity: 'success' }));
+      } catch (err) {
+        dispatch(addToast({ message: 'Failed to delete address', severity: 'error' }));
+      }
     }
   };
+
 
   const handleSetDefaultAddress = async (id) => {
     const newAddresses = user.addresses.map((a) => ({
@@ -108,8 +121,8 @@ export default function ProfilePage() {
       <Container maxWidth="md" sx={{ py: 8 }}>
         <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 4, mb: 4 }} />
         <Grid container spacing={4}>
-          <Grid item xs={12} md={4}><Skeleton height={400} sx={{ borderRadius: 4 }} /></Grid>
-          <Grid item xs={12} md={8}><Skeleton height={400} sx={{ borderRadius: 4 }} /></Grid>
+          <Grid size={{ xs: 12, md: 4 }}><Skeleton height={400} sx={{ borderRadius: 4 }} /></Grid>
+          <Grid size={{ xs: 12, md: 8 }}><Skeleton height={400} sx={{ borderRadius: 4 }} /></Grid>
         </Grid>
       </Container>
     );
@@ -124,7 +137,7 @@ export default function ProfilePage() {
 
       <Grid container spacing={4}>
         {/* Left Sidebar: Profile Overview */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={3}>
             <Card elevation={2} sx={{ borderRadius: 4, overflow: 'hidden' }}>
               <Box sx={{ height: 100, bgcolor: 'primary.main' }} />
@@ -178,7 +191,8 @@ export default function ProfilePage() {
             {/* Loyalty Points Card */}
             <Card elevation={2} sx={{ borderRadius: 4, bgcolor: 'primary.dark', color: 'white' }}>
               <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Stack direction="row" alignItems="center" sx={{ justifyContent: 'space-between' }}>
+
                   <Box>
                     <Typography variant="overline" sx={{ opacity: 0.8, letterSpacing: 1 }}>
                       Loyalty Points
@@ -198,7 +212,7 @@ export default function ProfilePage() {
         </Grid>
 
         {/* Right Content Area */}
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Stack spacing={4}>
             {/* Personal Details Section */}
             <Paper elevation={1} sx={{ p: 4, borderRadius: 4 }}>
@@ -208,7 +222,7 @@ export default function ProfilePage() {
               </Typography>
               <Box component="form" onSubmit={profileFormik.handleSubmit}>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       fullWidth label="First Name" name="firstName"
                       disabled={!editMode}
@@ -216,7 +230,7 @@ export default function ProfilePage() {
                       onChange={profileFormik.handleChange}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       fullWidth label="Last Name" name="lastName"
                       disabled={!editMode}
@@ -224,10 +238,10 @@ export default function ProfilePage() {
                       onChange={profileFormik.handleChange}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <TextField fullWidth label="Email Address" value={user?.email ?? ''} disabled />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <TextField
                       fullWidth label="Phone Number" name="phone"
                       disabled={!editMode}
@@ -252,7 +266,8 @@ export default function ProfilePage() {
 
             {/* Address Management Section */}
             <Paper elevation={1} sx={{ p: 4, borderRadius: 4 }}>
-              <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+
                 <Typography variant="h6" fontWeight={700} display="flex" alignItems="center">
                   <LocationOn sx={{ mr: 1.5, color: 'primary.main' }} />
                   Saved Addresses
@@ -280,8 +295,9 @@ export default function ProfilePage() {
                         </Box>
                       )}
                       
-                      <Box display="flex" justifyContent="space-between">
-                        <Box display="flex" gap={2}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Box sx={{ display: 'flex', gap: 2 }}>
+
                           <Avatar sx={{ bgcolor: 'grey.100', color: 'text.primary' }}>
                             {addr.label?.toLowerCase() === 'home' ? <Home /> : addr.label?.toLowerCase() === 'work' ? <Work /> : <LocationOn />}
                           </Avatar>

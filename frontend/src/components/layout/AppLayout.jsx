@@ -1,18 +1,24 @@
-import { useState } from 'react';
-import { Box, CssBaseline, ThemeProvider } from '@mui/material';
-import { Outlet } from 'react-router-dom';
+import { Box, CssBaseline } from '@mui/material';
+
 import { useSelector, useDispatch } from 'react-redux';
 import Header from './Header';
-import Footer from './Footer';
-import MobileSidebar from './MobileSidebar';
-import Toast from '../common/Toast';
-import { selectUser, logout, selectIsAuthenticated } from '@/redux/slices/authSlice';
+import { selectUser, logout, selectIsAuthenticated, fetchProfile } from '@/redux/slices/authSlice';
 import { fetchCart } from '@/redux/slices/cartSlice';
-import CartDrawer from '../cart/CartDrawer';
-import { CartConflictModal } from '../cart/CartConflictModal';
 import ToastContainer from '../common/ToastContainer';
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useState, lazy, Suspense } from 'react';
+import { useLocation, Outlet } from 'react-router-dom';
+import nprogress from 'nprogress';
+import 'nprogress/nprogress.css';
+import { AnimatePresence } from 'framer-motion';
+import PageTransition from '../common/PageTransition';
+import usePageTracking from '@/hooks/usePageTracking';
+
+// Lazily load global UI that isn't critical for first paint
+const Footer          = lazy(() => import('./Footer'));
+const MobileSidebar   = lazy(() => import('./MobileSidebar'));
+const CartDrawer      = lazy(() => import('../cart/CartDrawer'));
+const CartConflictModal = lazy(() => import('../cart/CartConflictModal'));
+
 
 export default function AppLayout() {
   const dispatch = useDispatch();
@@ -21,17 +27,26 @@ export default function AppLayout() {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // 1. Sync cart from server on mount if authenticated
+  // Activate Page Tracking for Analytics
+  usePageTracking();
+
+  // 1. Sync auth and cart on mount
   useEffect(() => {
     if (isAuthenticated) {
+      if (!user) {
+        dispatch(fetchProfile());
+      }
       dispatch(fetchCart());
     }
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch, isAuthenticated, user]);
 
-  // 2. Automated scroll to top on route change
+  // 2. Navigation progress and scroll to top
   useEffect(() => {
+    nprogress.start();
     window.scrollTo(0, 0);
+    nprogress.done();
   }, [pathname]);
+
 
   const handleSidebarOpen = () => setIsSidebarOpen(true);
   const handleSidebarClose = () => setIsSidebarOpen(false);
@@ -48,12 +63,14 @@ export default function AppLayout() {
       <Header onMobileMenuOpen={handleSidebarOpen} />
 
       {/* Mobile Side Drawer */}
-      <MobileSidebar 
-        open={isSidebarOpen} 
-        onClose={handleSidebarClose} 
-        user={user}
-        onLogout={handleLogout}
-      />
+      <Suspense fallback={null}>
+        <MobileSidebar 
+          open={isSidebarOpen} 
+          onClose={handleSidebarClose} 
+          user={user}
+          onLogout={handleLogout}
+        />
+      </Suspense>
 
       {/* Main Content Area */}
       <Box 
@@ -65,16 +82,25 @@ export default function AppLayout() {
           bgcolor: 'background.default'
         }}
       >
-        <Outlet />
+        <AnimatePresence mode="wait">
+          <PageTransition key={pathname}>
+            <Outlet />
+          </PageTransition>
+        </AnimatePresence>
       </Box>
 
+
       {/* Professional Footer */}
-      <Footer />
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
 
       {/* Global Notifications & Modals */}
       <ToastContainer />
-      <CartDrawer />
-      <CartConflictModal />
+      <Suspense fallback={null}>
+        <CartDrawer />
+        <CartConflictModal />
+      </Suspense>
     </Box>
   );
 }

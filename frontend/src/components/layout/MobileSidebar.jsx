@@ -27,14 +27,13 @@ const MobileSidebar = ({ open, onClose, user, onLogout }) => {
   const navigate = useNavigate();
 
   const menuItems = [
-    { text: 'Home', icon: <HomeIcon />, path: '/' },
-    { text: 'Restaurants', icon: <RestaurantIcon />, path: '/restaurants' },
-    { text: 'Special Offers', icon: <LocalOfferIcon />, path: '/offers' },
+    { text: 'Explore', icon: <HomeIcon />, path: '/' },
+    { text: 'Restaurants', icon: <RestaurantIcon />, path: '/search' },
+    { text: 'My Activity', icon: <HistoryIcon />, path: '/orders' },
   ];
 
   const userItems = [
     { text: 'My Profile', icon: <PersonIcon />, path: '/profile' },
-    { text: 'My Orders', icon: <HistoryIcon />, path: '/orders' },
   ];
 
   const handleNavigation = (path) => {
@@ -48,46 +47,52 @@ const MobileSidebar = ({ open, onClose, user, onLogout }) => {
       open={open}
       onClose={onClose}
       PaperProps={{
-        sx: { width: 280, display: 'flex', flexDirection: 'column' }
+        sx: { 
+          width: 280, 
+          display: 'flex', 
+          flexDirection: 'column',
+          bgcolor: '#FBFBFB' 
+        }
       }}
     >
       {/* Header */}
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #eee' }}>
-        <Typography variant="h6" color="primary" fontWeight="bold">
-          FoodieHub
+      <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+        <Typography variant="h6" color="primary" fontWeight={900} sx={{ letterSpacing: -1 }}>
+          THE KINETIC <Box component="span" sx={{ color: 'text.primary' }}>CURATOR</Box>
         </Typography>
-        <IconButton onClick={onClose} size="small">
+        <IconButton onClick={onClose} size="small" sx={{ color: 'text.secondary' }}>
           <CloseIcon />
         </IconButton>
       </Box>
 
       {/* User Info */}
-      <Box sx={{ px: 2, py: 3, bgcolor: '#fbfbfb' }}>
+      <Box sx={{ px: 2.5, py: 4 }}>
         {user ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Avatar sx={{ bgcolor: 'primary.main', width: 48, height: 48 }}>
+            <Avatar sx={{ bgcolor: 'primary.main', width: 52, height: 52, boxShadow: '0 4px 12px rgba(216, 88, 48, 0.2)' }}>
               {user.firstName?.[0] || user.email?.[0]?.toUpperCase()}
             </Avatar>
             <Box>
-              <Typography variant="subtitle1" fontWeight="bold">
+              <Typography variant="subtitle1" fontWeight={900} sx={{ lineHeight: 1.2 }}>
                 {user.firstName} {user.lastName}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="caption" color="text.secondary" fontWeight={600}>
                 {user.email}
               </Typography>
             </Box>
           </Box>
         ) : (
-          <Box>
-            <Typography variant="subtitle2" sx={{ mb: 2 }}>
-              Join FoodieHub for a better experience!
+          <Box sx={{ p: 2, bgcolor: 'white', borderRadius: 4, border: '1px solid rgba(0,0,0,0.05)' }}>
+            <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 2, lineHeight: 1.4 }}>
+              Unlock the full gourmet experience.
             </Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Stack direction="row" spacing={1}>
               <Button 
                 variant="contained" 
                 size="small" 
                 fullWidth
                 onClick={() => handleNavigation('/login')}
+                sx={{ borderRadius: 2, fontWeight: 900 }}
               >
                 Login
               </Button>
@@ -96,42 +101,59 @@ const MobileSidebar = ({ open, onClose, user, onLogout }) => {
                 size="small" 
                 fullWidth
                 onClick={() => handleNavigation('/register')}
+                sx={{ borderRadius: 2, fontWeight: 800 }}
               >
-                Register
+                Join
               </Button>
-            </Box>
+            </Stack>
           </Box>
         )}
       </Box>
 
-      <Divider />
+      <Divider sx={{ mx: 2.5, opacity: 0.5 }} />
 
       {/* Navigation Links */}
-      <List sx={{ flex: 1 }}>
+      <List sx={{ flex: 1, px: 1.5, py: 2 }}>
         {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton onClick={() => handleNavigation(item.path)}>
+          <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+            <ListItemButton 
+                onClick={() => handleNavigation(item.path)}
+                sx={{ 
+                    borderRadius: 3,
+                    py: 1.5,
+                    '&:hover': { bgcolor: 'rgba(216, 88, 48, 0.04)' }
+                }}
+            >
               <ListItemIcon sx={{ color: 'primary.main', minWidth: 40 }}>
                 {item.icon}
               </ListItemIcon>
-              <ListItemText primary={item.text} />
+              <ListItemText 
+                primary={item.text} 
+                primaryTypographyProps={{ fontWeight: 800, fontSize: '0.95rem' }} 
+              />
             </ListItemButton>
           </ListItem>
         ))}
 
         {user && (
           <>
-            <Divider sx={{ my: 1 }} />
-            <Typography variant="overline" sx={{ px: 2, color: 'text.secondary', fontWeight: 'bold' }}>
-              My Account
+            <Divider sx={{ my: 2, mx: 1, opacity: 0.5 }} />
+            <Typography variant="caption" sx={{ px: 2, mb: 1, display: 'block', color: 'text.secondary', fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1 }}>
+              Personal
             </Typography>
             {userItems.map((item) => (
               <ListItem key={item.text} disablePadding>
-                <ListItemButton onClick={() => handleNavigation(item.path)}>
+                <ListItemButton 
+                    onClick={() => handleNavigation(item.path)}
+                    sx={{ borderRadius: 3, py: 1.5 }}
+                >
                   <ListItemIcon sx={{ color: 'text.secondary', minWidth: 40 }}>
                     {item.icon}
                   </ListItemIcon>
-                  <ListItemText primary={item.text} />
+                  <ListItemText 
+                    primary={item.text} 
+                    primaryTypographyProps={{ fontWeight: 800, fontSize: '0.95rem' }} 
+                  />
                 </ListItemButton>
               </ListItem>
             ))}

@@ -52,7 +52,8 @@ export default function MerchantOrders() {
 
           <Grid container spacing={3}>
             {ORDERS.map((order) => (
-              <Grid xs={12} key={order.id}>
+              <Grid size={{ xs: 12 }} key={order.id}>
+
                 {/* Order Rendering */}
               </Grid>
             ))}

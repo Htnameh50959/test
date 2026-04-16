@@ -122,7 +122,8 @@ const initSocket = (httpServer) => {
   // 4. Connection Lifecycle
   // -------------------------------------------------------------------------
   io.on('connection', (socket) => {
-    console.log(`[Socket:Connect] User: ${socket.userId} (${socket.userRole}) | Socket: ${socket.id}`);
+    // ------------------------------------------------------------------
+
 
     // Track connection locally
     connectedUsers.set(socket.userId, socket.id);
@@ -259,6 +260,25 @@ const initSocket = (httpServer) => {
                 reason: reason || null,
               },
             });
+
+            // Special: Alert couriers when food is ready
+            if (status === 'READY_FOR_PICKUP') {
+              // Fetch full order to send to couriers
+              const fullOrder = await Order.findById(orderId).populate('restaurantId');
+              if (fullOrder) {
+                io.to('role:courier').emit(SERVER_EVENTS.DELIVERY_ASSIGNED, {
+                  _id: orderId,
+                  orderNumber: fullOrder.orderNumber,
+                  restaurantId: {
+                    name: fullOrder.restaurantId.name,
+                    profile: fullOrder.restaurantId.profile
+                  },
+                  deliveryAddress: fullOrder.deliveryAddress,
+                  timestamp: new Date()
+                });
+              }
+            }
+
 
             callback({ success: true, message: `Order ${orderId} updated to ${status}` });
           }
@@ -463,14 +483,15 @@ const initSocket = (httpServer) => {
                 timestamp: new Date(),
               });
               
+              
               // Acknowledge to courier
               socket.emit(SERVER_EVENTS.COURIER_ONLINE, {
                 courierId: socket.userId,
                 status: 'online'
               });
               
-              console.log(`[Socket:Courier] ${socket.userId} went ONLINE`);
               if (typeof callback === 'function') callback({ success: true });
+
             } catch (error) {
               socket.emit(SERVER_EVENTS.ERROR, { message: 'Failed to go online' });
               if (typeof callback === 'function') callback({ success: false });
@@ -492,8 +513,8 @@ const initSocket = (httpServer) => {
               
               socket.leave(`courier:${socket.userId}`);
               
-              console.log(`[Socket:Courier] ${socket.userId} went OFFLINE`);
               if (typeof callback === 'function') callback({ success: true });
+
             } catch (error) {
               if (typeof callback === 'function') callback({ success: false });
             }
@@ -569,8 +590,8 @@ const initSocket = (httpServer) => {
     });
 
     socket.on('disconnect', async (reason) => {
-      console.log(`[Socket:Disconnect] User: ${socket.userId} | Reason: ${reason}`);
       connectedUsers.delete(socket.userId);
+
 
       // Automatic Offline for couriers
       if (socket.userRole === 'courier') {
@@ -579,8 +600,8 @@ const initSocket = (httpServer) => {
             'courierProfile.isOnline': false,
             'courierProfile.lastOnline': new Date()
           });
-          console.log(`[Socket:Disconnect] Set courier ${socket.userId} to offline`);
         } catch (err) {
+
           console.error(`[Socket:Disconnect] Failed to set courier ${socket.userId} offline:`, err.message);
         }
       }
@@ -615,8 +636,8 @@ const logSocketEvent = (event, data) => {
     socketId: data.socketId,
     metadata: data.metadata || {},
   };
-  console.log('[Socket:Event]', JSON.stringify(entry));
 };
+
 
 /**
  * Returns the initialized Socket.io server. Throws if called before initSocket().
